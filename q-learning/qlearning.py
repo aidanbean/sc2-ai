@@ -34,6 +34,7 @@ def main():
 	    while j < 99:
 	        j += 1
 	        
+	        env.render()
 	        # randomly choose available action from current state's actions
 	        action = np.argmax(Q[state,:] + np.random.randn(1,env.action_space.n)*(1/(i+1)))
 	        
