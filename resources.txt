@@ -1,0 +1,5 @@
+Resources for our project: 
+
+
+- https://chatbotslife.com/building-a-smart-pysc2-agent-cdc269cb095d
+- https://gamescapad.es/building-bots-in-starcraft-2-for-psychologists/
