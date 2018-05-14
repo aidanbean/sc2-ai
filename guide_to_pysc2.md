@@ -76,6 +76,7 @@ Full parameter list can be found [here](https://github.com/deepmind/pysc2/blob/3
 - A summary of action/observation feature can be found [here](https://github.com/deepmind/pysc2/blob/master/docs/environment.md)
 
 
+
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
 
