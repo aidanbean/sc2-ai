@@ -20,6 +20,17 @@ define two game mode: human play and agent play
 human play: bin/play.py
 agent play: bin/agent.py
 
+### agent.py:
+set map (type, size), difficulty, race, etc for running an agent-played game. Important settings are: `max_agent_steps, step_mul (dafult: APM=8), agent (default: random_agent), diffculty (default: None=VeryEasy), map(map name)`
+
+### Other files:
+`map_list` : list all maps
+`gen_actions`: Generate the action definitions for actions.py
+`actions`: Print the valid actions
+`replay_actions`: Dump out stats about all the actions that are in use in a set of replays
+
+##Env:
+
 
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
