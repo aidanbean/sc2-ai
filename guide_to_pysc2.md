@@ -1,7 +1,11 @@
-# A guide to component of pysc2 
+# A guide to components of pysc2 
 
 Official pysc2 documentation can be found
 [here](https://github.com/deepmind/pysc2/)
+
+## remark:
+If you would like to contribute to the document, try look at if there existing you can add to, if not create a section `## section`;
+to create a sub-section, `### subsection` under the section you would like to add.
 
 ## running a custom agent:
 `$ python -m pysc2.bin.agent --map CollectMineralShards --agent pysc2.agents.scripted_agent.CollectMineralShards`
@@ -74,6 +78,22 @@ Full parameter list can be found [here](https://github.com/deepmind/pysc2/blob/3
 
 
 - A summary of action/observation feature can be found [here](https://github.com/deepmind/pysc2/blob/master/docs/environment.md)
+
+#### More to be updated on this about environment feature and actions ... 
+
+### run_loop.py:
+a run loop for agent/environment interaction, used to `bin/agent.py` for running agent. 
+
+function `run_loop` gets an agent, create an environment, pass in initial 
+timestep to the agent, run function `agent.step()` with a `timestep` as arugment
+, which consisit of 4 parts:
+- `timestep.step_type`
+
+- `timestep.reward`
+
+- `timestep.discount`
+
+- `timestep.observation`
 
 
 
