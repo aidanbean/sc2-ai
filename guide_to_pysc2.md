@@ -32,8 +32,11 @@ set map (type, size), difficulty, race, etc for running an agent-played game. Im
 
 ### Other files:
 `map_list` : list all maps
+
 `gen_actions`: Generate the action definitions for actions.py
+
 `actions`: Print the valid actions
+
 `replay_actions`: Dump out stats about all the actions that are in use in a set of replays
 
 ## Env:
@@ -47,7 +50,10 @@ Define a base for environment parameters.
 `steptype`: first, mid, last(end of sequence)
 
 `Base`: abstract class of RL environment
- - `reset`: Starts a new sequence and returns the first `TimeStep` of this sequence.
+ - `reset`: Starts a new sequence and returns the first `TimeStep` of this sequence
+ - `step`: Updates the environment according to the action and returns a `TimeStep`
+ - `observation_spec`: Defines the observations provided by the environment
+ - `action_spec`: Defines the actions that should be provided to `step`
 
 
 ## Python:
