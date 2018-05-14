@@ -6,18 +6,25 @@
 ## component of the the pysc2 API:
 ### more important:
 `agent`: stores the agent class
+
 `bin`: the core of running the agent
+
 `env`: environment protocol
+
 `lib`: define feature layers
+
 `maps`: setting on Maps
 
 ### less important
 `run_configs`: setting on running the game
+
 `tests`: unit tests
 
 ## Bin:
 define two game mode: human play and agent play
+
 human play: bin/play.py
+
 agent play: bin/agent.py
 
 ### agent.py:
@@ -29,16 +36,18 @@ set map (type, size), difficulty, race, etc for running an agent-played game. Im
 `actions`: Print the valid actions
 `replay_actions`: Dump out stats about all the actions that are in use in a set of replays
 
-##Env:
+## Env:
 
 ### environment.py:
 Define a base for environment parameters.
+
 `timestep`: precept from environment from a step of interaction, a triple of (step_type, observation, reward).
     Attribute contains reward, discount, step type.
 
 `steptype`: first, mid, last(end of sequence)
+
 `Base`: abstract class of RL environment
-    `reset`: Starts a new sequence and returns the first `TimeStep` of this sequence.
+ - `reset`: Starts a new sequence and returns the first `TimeStep` of this sequence.
 
 
 ## Python:
