@@ -1,7 +1,7 @@
 # A guide to component of pysc2 
 
 Official pysc2 documentation can be found
-[here](https://github.com/deepmind/pysc2/blob/master/docs/environment.md)
+[here](https://github.com/deepmind/pysc2/)
 
 ## running a custom agent:
 `$ python -m pysc2.bin.agent --map CollectMineralShards --agent pysc2.agents.scripted_agent.CollectMineralShards`
