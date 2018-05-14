@@ -60,6 +60,7 @@ class BuildMarines(base_agent.BaseAgent):
 
                 # gets x & y coordinates of all Terran SCV unit types
                 unit_y, unit_x = (unit_type == _TERRAN_SCV).nonzero()
+
                 # get the coordinates of the first SCV in the list
                 target = [unit_x[0], unit_y[0]]
 
