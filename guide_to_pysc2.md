@@ -6,7 +6,7 @@ Official pysc2 documentation can be found
 ## running a custom agent:
 `$ python -m pysc2.bin.agent --map CollectMineralShards --agent pysc2.agents.scripted_agent.CollectMineralShards`
 
-## component of the the pysc2 API:
+## Directories:
 ### more important:
 `agent`: stores the agent class
 
@@ -55,14 +55,26 @@ Define a base for environment parameters.
 `Base`: abstract class of RL environment
  - `reset`: Starts a new sequence and returns the first `TimeStep` of this sequence
  - `step`: Updates the environment according to the action and returns a `TimeStep`
- - `observation_spec`: Defines the observations provided by the environment
+ - `observation_spec`: Defines the observations provided by the environment. Redefined in `lib.features` specific for SC2.
  - `action_spec`: Defines the actions that should be provided to `step`
+
+ ### base_env_wrapper.py:
+ `BaseEnvWapper` is a child of `Base` class from `environment.py`, which is used for overwrite the `Base`
+
+ ### sc2_env.py (the most important file in env):
+`SC2Env`: As a derived class from `environment.Base`, it re-defines all function members from the `Base` to create the SC2 environment parameters.  
+
+Some environment parameters: `discount (default=1), score_index (-1: choose win/loss as reward, >=0: choose some scores from one of the score_cumulative)`.
+
+Full parameter list can be found [here](https://github.com/deepmind/pysc2/blob/3e0749630aebbcc2f9a62613fcdf149095d4d6d0/pysc2/env/sc2_env.py#L88)
+
+
 
 
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
 
-## Features
+## Features:
 "Features" help expose the current state of the game.  Features include:
 - Minimap features ("minimap")
 - Screen features ("screen")
