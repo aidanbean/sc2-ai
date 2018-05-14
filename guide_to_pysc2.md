@@ -4,8 +4,18 @@ Official pysc2 documentation can be found
 [here](https://github.com/deepmind/pysc2/)
 
 ## remark:
-If you would like to contribute to the document, try look at if there existing you can add to, if not create a section `## section`;
+If you would like to contribute to the document, try look at if there existing section you can add to, if not create a section `## section`;
 to create a sub-section, `### subsection` under the section you would like to add.
+
+The outline for this `.md` is:
+```md
+## section/directory of file that will be explained
+    ### sub-section/ files
+    ===========
+    description
+    ===========
+
+```
 
 ## running a custom agent:
 `$ python -m pysc2.bin.agent --map CollectMineralShards --agent pysc2.agents.scripted_agent.CollectMineralShards`
@@ -124,8 +134,9 @@ class PolicyGradientAgent(base_agent.BaseAgent):
     def step(self, obs): # overwrite function in Base, choose action based on pi net
 ```
 
-
-
+### A few notes:
+An action in pysc2 is a composition of smaller parameters, these parameters are 
+sort of like smaller actions.  
 
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
