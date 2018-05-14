@@ -68,6 +68,13 @@ Some environment parameters: `discount (default=1), score_index (-1: choose win/
 
 Full parameter list can be found [here](https://github.com/deepmind/pysc2/blob/3e0749630aebbcc2f9a62613fcdf149095d4d6d0/pysc2/env/sc2_env.py#L88)
 
+`observation_spec`: import from `lib.feature`, contains 12 features. Here are some important feature:
+
+- ``screen`: `screen.SCREEN_FEATURES` contain 13 sub-feature layers. found [here](https://github.com/deepmind/pysc2/blob/3e0749630aebbcc2f9a62613fcdf149095d4d6d0/pysc2/lib/features.py#L140)
+
+
+- A summary of action/observation feature can be found [here](https://github.com/deepmind/pysc2/blob/master/docs/environment.md)
+
 
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
