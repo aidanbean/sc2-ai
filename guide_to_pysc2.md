@@ -15,3 +15,12 @@
 `run_configs`: setting on running the game
 `tests`: unit tests
 
+## Bin:
+define two game mode: human play and agent play
+human play: bin/play.py
+agent play: bin/agent.py
+
+
+## Python:
+`__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
+
