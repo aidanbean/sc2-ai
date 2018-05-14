@@ -69,8 +69,6 @@ Some environment parameters: `discount (default=1), score_index (-1: choose win/
 Full parameter list can be found [here](https://github.com/deepmind/pysc2/blob/3e0749630aebbcc2f9a62613fcdf149095d4d6d0/pysc2/env/sc2_env.py#L88)
 
 
-
-
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
 
