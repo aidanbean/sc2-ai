@@ -79,7 +79,10 @@ Full parameter list can be found [here](https://github.com/deepmind/pysc2/blob/3
 
 - A summary of action/observation feature can be found [here](https://github.com/deepmind/pysc2/blob/master/docs/environment.md)
 
-#### More to be updated on this about environment feature and actions ... 
+## Actions:
+
+`actions.py` lives in `lib/`. Around 500 action, mostly binary choice, controlled 
+by agrument `queued[] = [True, False]`.
 
 ### run_loop.py:
 a run loop for agent/environment interaction, used to `bin/agent.py` for running agent. 
@@ -93,7 +96,34 @@ timestep to the agent, run function `agent.step()` with a `timestep` as arugment
 
 - `timestep.discount`
 
-- `timestep.observation`
+- `timestep.observation`: a dictionary, which contains `observation_spec`
+
+## Agent template :
+```python 
+class SimpleAgent(base_agent.BaseAgent):
+    """simple agent"""
+    def step(self, timesteps):
+        super(SimpleAgent, self).step(timesteps)
+        #############
+        generate action based on timesteps.observation, timesteps.reward
+        #############
+        return actions.FunctionCall(function_id, args)
+
+
+class PolicyGradientAgent(base_agent.BaseAgent):
+    """policy gradient that iteratively update an initial policy to 
+    maximize utility function"""
+    def setup(self, obs_spec, action_spec): # overwrite function in BaseAgent
+
+    def create_policy_net(self): # 
+
+    def create_training_method(self): # 
+
+    def train_policy_net(self): # 
+
+    def step(self, obs): # overwrite function in Base, choose action based on pi net
+```
+
 
 
 
