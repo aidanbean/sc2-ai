@@ -31,6 +31,15 @@ set map (type, size), difficulty, race, etc for running an agent-played game. Im
 
 ##Env:
 
+### environment.py:
+Define a base for environment parameters.
+`timestep`: precept from environment from a step of interaction, a triple of (step_type, observation, reward).
+    Attribute contains reward, discount, step type.
+
+`steptype`: first, mid, last(end of sequence)
+`Base`: abstract class of RL environment
+    `reset`: Starts a new sequence and returns the first `TimeStep` of this sequence.
+
 
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
