@@ -1,5 +1,8 @@
 # A guide to component of pysc2 
 
+Official pysc2 documentation can be found
+[here](https://github.com/deepmind/pysc2/blob/master/docs/environment.md)
+
 ## running a custom agent:
 `$ python -m pysc2.bin.agent --map CollectMineralShards --agent pysc2.agents.scripted_agent.CollectMineralShards`
 
@@ -59,3 +62,32 @@ Define a base for environment parameters.
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
 
+## Features
+"Features" help expose the current state of the game.  Features include:
+- Minimap features ("minimap")
+- Screen features ("screen")
+- General player information ("player")
+- Selection ("single_select" or "multi_select")
+- Avaliabe actions ("available_actions")
+- etc.  More can be found in `pysc2.lib.features`
+
+**Step** Function:
+
+The **Step** function is called every step of the game.  It allows access to the `obs` argument which
+allows access to the game Observations, which include features.  For example, if you wanted to select a particular unit,
+you would have to look at the `unit_type` layer within the `screen` feature layer.  To do this:
+
+```python
+_UNIT_TYPE = features.SCREEN_FEATURES.unit_type.index
+unit_type = obs.observation["screen"][_UNIT_TYPE]
+``` 
+
+`unit_type` will contain a matrix with the same dimensions as the game resolution.  Each entry in the matrix will be a 
+number representing the unit type (there are ~500 unit types). Then, to filter by particular units, e.g. a Terran SCV 
+(which is unit #45), we can do this:
+
+```python
+unit_y, unit_x = (unit_type == _TERRAN_SCV).nonzero()
+```
+
+`unit_x` and `unit_y` will then contain all the coordinates of the screen where SCVs are located.
