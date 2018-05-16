@@ -10,6 +10,30 @@ import plotting
 
 from collections import deque, namedtuple
 
+
+"""
+Tasks:
+	1. State processing 
+	process the state, which is just a picture in Atari. 
+	For us the input may be a vector of actions, stats, etc
+	Needs to be done to figure out how to interface with the Q Estimator Network
+
+	2. Building the Q network
+	Atari used image processing, 3 conv layers, 1 fully connected 
+	We can use a simple feed forward, or something crazy haha. Capsule net? 
+
+	3. Picking a Action Policy
+	The implementation provided is a epsilon greedy policy 
+	https://stats.stackexchange.com/questions/248131/epsilon-greedy-policy-improvement?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+	provides a probablility for possible actions
+	We could pick our own or a different policy, i think A3C policy is a little diffeerent 
+
+	4. Integration into Q learning model 
+	Put everything together.
+	Load replay memory, Big for loop for running through number of episodes 
+
+"""
+
 env = gym.envs.make("Breakout-v0")
 
 """
@@ -195,6 +219,8 @@ def make_epsilon_greedy_policy(estimator, nA):
 		A function that takes the sess, observation, epsilon as function
 		returns probabilities for each action in from of a numpy array length of nA
 	"""
+
+	# we can define our own policy here too. f
 	def policy_fn(sess, observation, epsilon):
 		A = np.ones(nA, dtype=float) * epsilon / nA
 		q_values = estimator.predict(sess, np.expand_dims(observation, 0))[0]
