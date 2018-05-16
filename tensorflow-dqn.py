@@ -25,6 +25,10 @@ class StateProcessor():
 	process a raw atari image. 
 	convert to grey scale. 
 	resize before feeding to network 
+
+	Integrate with PySC2. 
+	Figure out bit the input is, and how to pre process. 
+	NumActions, stats to use etc etc 
 	"""
 	def __init__(self):
 		# build the tf graph
@@ -66,6 +70,12 @@ class Estimator():
 	def _build_model(self):
 		"""
 		build tf graph 
+		3 convolutional layers 1 fully connected layer 
+		We can manipulate the network outself.
+		MSE loss
+		RMSPropOptimizer from the DQN paper 
+		We can pick a new one ourself.
+		Set to minimize 
 		"""
 
 		# placeholders 
