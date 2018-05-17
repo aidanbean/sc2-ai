@@ -1,5 +1,10 @@
 # A guide to components of pysc2 
 
+## Introduction:
+This `md` provided an un-official guidance for using pysc2
+to develop agents. It included introduction to some source code 
+document in the pysc2, as well as notes on how to navigate them.
+
 Official pysc2 documentation can be found
 [here](https://github.com/deepmind/pysc2/)
 
@@ -161,14 +166,17 @@ down below.
 - `QUEUED` is a bool argument for most of the actions to indicate whether 
 this action should be executed now or after pervious action
 
-- The map is `64x64`, with the top left being `[0, 0]`. spawn location is either 
+- The screen is `84x84`, with the top left being `[0, 0]`. spawn location is either 
 top left or bottom right.
 
 - `PLAYER_RELATIVE`: a list of units arranged relative to the 
 current player.
 
 - Coordinate information are extracted from 6 frame in total. If there is 18 units in the game, you will get 
-`18 x 6` coordinates for the same 18 units that is moving in the 6 frames.
+`18 x 6` coordinates for the same 18 units that is moving in the 6 frames. The coordinates of units are 
+returned in the order (y, x), but you must pass in the values in the order (x, y).
+
+- To execute a action, you must call `actions.FunctionCall("function", "arguments for this function")` in `def step()`
 
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python

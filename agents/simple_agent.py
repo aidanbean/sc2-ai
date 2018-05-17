@@ -14,6 +14,7 @@ import time
 
 ## function/action id
 _BUILD_SUPPLYDEPOT = actions.FUNCTIONS.Build_SupplyDepot_screen.id
+_BUILD_BARRACKS = actions.FUNCTIONS.Build_Barracks_screen.id
 _NOOP = actions.FUNCTIONS.no_op.id
 _SELECT_POINT = actions.FUNCTIONS.select_point.id
 
@@ -33,8 +34,11 @@ _QUEUED = [1]
 
 class SimpleAgent(base_agent.BaseAgent):
     base_top_left = None # this store our spawn location
-    supply_depot_built = False
     scv_selected = False
+
+    # construction related
+    supply_depot_built = False
+    barrack_built = False
 
     def step(self, obs):
         """a agent that just mine very quickly
@@ -42,6 +46,7 @@ class SimpleAgent(base_agent.BaseAgent):
         super(SimpleAgent, self).step(obs)
         time.sleep(0.5)
 
+        # locate base
         if self.base_top_left is None:
             # return a list of coordinates of non zero units
             player_x, player_y = (obs.observation["minimap"][_PLAYER_RELATIVE] == _PLAYER_SELF).nonzero()
@@ -49,8 +54,9 @@ class SimpleAgent(base_agent.BaseAgent):
             # if the mean of y coordinates for all units is less than 31, base_top_left is assigned True
             self.base_top_left = player_y.mean() <= 31
 
-
+        # build depot
         if not self.supply_depot_built:
+            # select a worker if you havent
             if not self.scv_selected:
                 unit_type = obs.observation["screen"][_UNIT_TYPE]
 
@@ -58,12 +64,32 @@ class SimpleAgent(base_agent.BaseAgent):
                 unit_y, unit_x = (unit_type == _TERRAN_SCV).nonzero()
 
                 # select the 1st one using actions, for no reason
-                target = [unit_x[0], unit_y[0]]
+                target = [unit_x[0], unit_y[0]] # target is the location for executing action in the screen
                 self.scv_selected = True
                 return actions.FunctionCall(_SELECT_POINT, [_NOT_QUEUED, target])
 
+            # if worker selected, build depot
+            elif _BUILD_SUPPLYDEPOT in obs.observation["available_actions"]:
+                unit_type = obs.observation["screen"][_UNIT_TYPE]
+                unit_y, unit_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
 
-        return actions.FunctionCall(actions.FUNCTIONS.no_op.id, [])
+                # command center has multiple x, y coordinates b/c frames
+                # the 0, 20 means we build the depot above or below 20 pixel from the command center
+                target = self.transformLocation(int(unit_x.mean()), 0, int(unit_y.mean()), 20)
+                self.supply_depot_built = True
+                return actions.FunctionCall(_BUILD_SUPPLYDEPOT, [_NOT_QUEUED, target])
+
+        # build barrack
+        elif not self.barrack_built:
+            if _BUILD_BARRACKS in obs.observation["available_actions"]:
+                unit_type = obs.observation["screen"][_UNIT_TYPE]
+                unit_y, unit_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
+
+                target  = self.transformLocation(int(unit_x.mean()), 20, int(unit_y.mean()), 0)
+                self.barrack_built = True
+                return actions.FunctionCall(_BUILD_BARRACKS, [_NOT_QUEUED, target])
+
+        return actions.FunctionCall(_NOOP, [])
 
     def transformLocation(self, x, x_distance, y, y_distance):
         """move units further from command center"""
