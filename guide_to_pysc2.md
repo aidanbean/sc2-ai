@@ -140,6 +140,10 @@ class PolicyGradientAgent(base_agent.BaseAgent):
 An action in pysc2 is a composition of smaller parameters, these parameters are 
 sort of like smaller actions.  
 
+## Creating a agent:
+- you have as much time as you want in one timestep, the game will only preceded to next 
+time frame after you output your action with the `step` function.
+
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
 
