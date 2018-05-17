@@ -141,8 +141,20 @@ An action in pysc2 is a composition of smaller parameters, these parameters are
 sort of like smaller actions.  
 
 ## Creating a agent:
-- you have as much time as you want in one timestep, the game will only preceded to next 
+
+### Tips:
+- You have as much time as you want in one timestep, the game will only preceded to next 
 time frame after you output your action with the `step` function.
+
+- In the game build marine, you will need to first build supply depot, then build the 
+barrack to BUILD MARINES.
+
+- In `def step(self, ops)`, `ops` contains the state information, for more information, refer to the FEATURE section 
+down below.
+
+- To get an action id, `ACTION_1 = actions.FUNCTIONS.[action name, refered to lib/actions.py].id`
+
+- `SCREEN_FEATURES` are the 13 minimap features.
 
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
