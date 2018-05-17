@@ -18,6 +18,8 @@ The outline for this `.md` is:
 ```
 
 ## running a custom agent:
+Go the directory where you agent source code is stored, and run the following command:
+
 `$ python -m pysc2.bin.agent --map CollectMineralShards --agent pysc2.agents.scripted_agent.CollectMineralShards`
 
 ## Directories:
