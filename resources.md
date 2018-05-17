@@ -1,0 +1,7 @@
+
+
+General Resources for our project:
+- https://chatbotslife.com/building-a-smart-pysc2-agent-cdc269cb095d
+- https://gamescapad.es/building-bots-in-starcraft-2-for-psychologists/
+- https://medium.com/emergent-future/simple-reinforcement-learning-with-tensorflow-part-0-q-learning-with-tables-and-neural-networks-d195264329d0
+- https://cgnicholls.github.io/reinforcement-learning/2017/03/27/a3c.html
