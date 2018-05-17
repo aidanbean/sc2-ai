@@ -88,8 +88,9 @@ Full parameter list can be found [here](https://github.com/deepmind/pysc2/blob/3
 
 - ``screen`: `screen.SCREEN_FEATURES` contain 13 sub-feature layers. found [here](https://github.com/deepmind/pysc2/blob/3e0749630aebbcc2f9a62613fcdf149095d4d6d0/pysc2/lib/features.py#L140)
 
+- `observation_spec` is in line 140 in features.py
 
-- A summary of action/observation feature can be found [here](https://github.com/deepmind/pysc2/blob/master/docs/environment.md)
+A summary of action/observation feature can be found [here](https://github.com/deepmind/pysc2/blob/master/docs/environment.md)
 
 ## Actions:
 
@@ -152,9 +153,22 @@ barrack to BUILD MARINES.
 - In `def step(self, ops)`, `ops` contains the state information, for more information, refer to the FEATURE section 
 down below.
 
-- To get an action id, `ACTION_1 = actions.FUNCTIONS.[action name, refered to lib/actions.py].id`
+- To get an action id: `actions.FUNCTIONS.action1.id`. To get an action by id: `action.functionCall(actions.FUNCTIONS.action1.id)`
 
-- `SCREEN_FEATURES` are the 13 minimap features.
+- `SCREEN_FEATURES` are the 13 minimap features, to get a feature index: 
+`features.*_FEATURES.feature1.index`. To get a feature: `feature1 = obs.observation[fea_location][feature1 index]`.
+
+- `QUEUED` is a bool argument for most of the actions to indicate whether 
+this action should be executed now or after pervious action
+
+- The map is `64x64`, with the top left being `[0, 0]`. spawn location is either 
+top left or bottom right.
+
+- `PLAYER_RELATIVE`: a list of units arranged relative to the 
+current player.
+
+- Coordinate information are extracted from 6 frame in total. If there is 18 units in the game, you will get 
+`18 x 6` coordinates for the same 18 units that is moving in the 6 frames.
 
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
