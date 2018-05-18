@@ -4,11 +4,13 @@ this agent make decision using Q Learning, again, this is for learning / warm up
 
 running this agent:
 python -m pysc2.bin.agent \
---map Simple64 \
+--map BuildMarines \
 --agent smart_agent.SmartAgent \
 --agent_race T \
 --max_agent_steps 0 \
 --norender
+
+this agent is modified for just build marine
 """
 
 import random
@@ -26,8 +28,8 @@ _SELECT_POINT = actions.FUNCTIONS.select_point.id
 _BUILD_SUPPLY_DEPOT = actions.FUNCTIONS.Build_SupplyDepot_screen.id
 _BUILD_BARRACKS = actions.FUNCTIONS.Build_Barracks_screen.id
 _TRAIN_MARINE = actions.FUNCTIONS.Train_Marine_quick.id
-_SELECT_ARMY = actions.FUNCTIONS.select_army.id
-_ATTACK_MINIMAP = actions.FUNCTIONS.Attack_minimap.id
+# _SELECT_ARMY = actions.FUNCTIONS.select_army.id
+# _ATTACK_MINIMAP = actions.FUNCTIONS.Attack_minimap.id
 
 _PLAYER_RELATIVE = features.SCREEN_FEATURES.player_relative.index
 _UNIT_TYPE = features.SCREEN_FEATURES.unit_type.index
@@ -43,6 +45,10 @@ _TERRAN_BARRACKS = 21
 _NOT_QUEUED = [0]
 _QUEUED = [1]
 
+# define reward
+KILL_UNIT_REWARD = 0.2
+KILL_BUILDING_REWARD = 0.5
+
 # define actions for this agent
 ACTION_DO_NOTHING = 'donothing'
 ACTION_SELECT_SCV = 'selectscv'
@@ -50,8 +56,8 @@ ACTION_BUILD_SUPPLY_DEPOT = 'buildsupplydepot'
 ACTION_BUILD_BARRACKS = 'buildbarracks'
 ACTION_SELECT_BARRACKS = 'selectbarracks'
 ACTION_BUILD_MARINE = 'buildmarine'
-ACTION_SELECT_ARMY = 'selectarmy'
-ACTION_ATTACK = 'attack'
+# ACTION_SELECT_ARMY = 'selectarmy'
+# ACTION_ATTACK = 'attack'
 
 smart_actions = [
     ACTION_DO_NOTHING,
@@ -60,8 +66,8 @@ smart_actions = [
     ACTION_BUILD_BARRACKS,
     ACTION_SELECT_BARRACKS,
     ACTION_BUILD_MARINE,
-    ACTION_SELECT_ARMY,
-    ACTION_ATTACK,
+    # ACTION_SELECT_ARMY,
+    # ACTION_ATTACK,
 ]
 
 
@@ -114,6 +120,12 @@ class SmartAgent(base_agent.BaseAgent):
         self.qlearn = QLearningTable(actions=list(range(len(smart_actions)))) # 0, 1, 2 ...
         self.base_top_left = None
 
+        # R, s, a
+        self.previous_killed_unit_score = 0
+        self.previous_killed_building_score = 0
+        self.previous_action = None
+        self.previous_state = None
+
     def transformLocation(self, x, x_distance, y, y_distance):
         if not self.base_top_left:
             return [x - x_distance, y - y_distance]
@@ -135,7 +147,7 @@ class SmartAgent(base_agent.BaseAgent):
         supply_limit = obs.observation['player'][4]
         army_supply = obs.observation['player'][5]
 
-        # define a state
+        # define state tuple
         current_state = [
             supply_depot_count,
             barracks_count,
@@ -144,10 +156,33 @@ class SmartAgent(base_agent.BaseAgent):
         ]
 
 
-        # enumerate all action, in narrow context, it work,
-        # but this is silly in larger context,
-        # yet again, only for practice
-        smart_action = smart_actions[random.randrange(0, len(smart_actions) - 1)]
+
+        # get previous reward
+        killed_unit_score = obs.observation['score_cumulative'][5]
+        killed_building_score = obs.observation['score_cumulative'][6]
+
+        # don't learn from 1st step
+        if self.previous_action is not None:
+            reward = 0
+            # calculate reward
+            if killed_unit_score > self.previous_killed_building_score:
+                reward += KILL_UNIT_REWARD
+            if killed_building_score > self.previous_killed_building_score:
+                reward += KILL_BUILDING_REWARD
+            # learn
+            self.qlearn.learn(str(self.previous_state), self.previous_action, reward, str(current_state))
+
+        rl_action = self.qlearn.choose_action(str(current_state))
+        smart_action = smart_actions[rl_action]
+        self.previous_killed_unit_score = killed_unit_score
+        self.previous_killed_building_score = killed_building_score
+        self.previous_state = current_state
+        self.previous_action = rl_action
+
+
+        # store accumlative reward
+        self.previous_killed_building_score = killed_unit_score
+        self.previous_killed_building_score = killed_building_score
 
         if smart_action == ACTION_DO_NOTHING:
             return actions.FunctionCall(_NO_OP, [])
@@ -193,15 +228,16 @@ class SmartAgent(base_agent.BaseAgent):
                 if _TRAIN_MARINE in obs.observation['available_actions']:
                     return actions.FunctionCall(_TRAIN_MARINE, [_QUEUED])
                 pass
-            elif smart_action == ACTION_SELECT_ARMY:
-                if _SELECT_ARMY in obs.observation['available_actions']:
-                    return actions.FunctionCall(_SELECT_ARMY, [_NOT_QUEUED])
-                pass
-            elif smart_action == ACTION_ATTACK:
-                if _ATTACK_MINIMAP in obs.observation["available_actions"]:
-                    if self.base_top_left:
-                        return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, [39, 45]])
-                    return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, [21, 24]])
-                pass
+
+            # elif smart_action == ACTION_SELECT_ARMY:
+            #     if _SELECT_ARMY in obs.observation['available_actions']:
+            #         return actions.FunctionCall(_SELECT_ARMY, [_NOT_QUEUED])
+            #     pass
+            # elif smart_action == ACTION_ATTACK:
+            #     if _ATTACK_MINIMAP in obs.observation["available_actions"]:
+            #         if self.base_top_left:
+            #             return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, [39, 45]])
+            #         return actions.FunctionCall(_ATTACK_MINIMAP, [_NOT_QUEUED, [21, 24]])
+            #     pass
 
             return actions.FunctionCall(_NO_OP, [])
