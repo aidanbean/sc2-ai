@@ -4,7 +4,21 @@ some background info:
      - scv is the workder unit for terran
 
 the purpose for writing/learning this script is to gain a better understanding on
-how to navigate the pysc2 environmental features and produce actions"""
+how to navigate the pysc2 environmental features and produce actions
+
+running the agent:
+python -m pysc2.bin.agent \
+--map BuildMarines \
+--agent simple_agent.SimpleAgent \
+--agent_race T
+
+
+descripition:
+In epsoide 1, this agent will select one worker to build exactly one depot
+and one barrack, and build maximum number of marines in this barrack.
+In epsoide 2, this agent will not perform any more build-marine action. all it does
+is just mining because
+"""
 
 from pysc2.agents import base_agent
 from pysc2.lib import actions
@@ -104,24 +118,24 @@ class SimpleAgent(base_agent.BaseAgent):
                 return actions.FunctionCall(_BUILD_BARRACKS, [_NOT_QUEUED, target])
 
         # control barrack and rally barrack
-        elif not self.barracks_rallied:
-            if not self.barracks_selected:
-                unit_type = obs.observation["screen"][_UNIT_TYPE]
-                unit_y, unit_x = (unit_type == _TERRAN_BARRACKS).nonzero()
+        # elif not self.barracks_rallied:
+        elif not self.barracks_selected:
+            unit_type = obs.observation["screen"][_UNIT_TYPE]
+            unit_y, unit_x = (unit_type == _TERRAN_BARRACKS).nonzero()
 
-                # if there is a barrack, pick a location in screen
-                if unit_y.any():
-                    target = [int(unit_x.mean()), int(unit_y.mean())]
-                    self.barracks_selected = True
-                    return actions.FunctionCall(_SELECT_POINT, [_NOT_QUEUED, target])
+            # if there is a barrack, pick a location in screen
+            if unit_y.any():
+                target = [int(unit_x.mean()), int(unit_y.mean())]
+                self.barracks_selected = True
+                return actions.FunctionCall(_SELECT_POINT, [_NOT_QUEUED, target])
 
             # group the units together
-            else:
-                self.barracks_rallied = True
-                if self.base_top_left:
-                    # the rally location is hard code for simplicity
-                    return actions.FunctionCall(_RALLY_UNITS_MINIMAP, [_NOT_QUEUED, [29, 21]])
-                return actions.FunctionCall(_RALLY_UNITS_MINIMAP, [_NOT_QUEUED, [29, 46]])
+            # else:
+            #     self.barracks_rallied = True
+            #     if self.base_top_left:
+            #         # the rally location is hard code for simplicity
+            #         return actions.FunctionCall(_RALLY_UNITS_MINIMAP, [_NOT_QUEUED, [29, 21]])
+            #     return actions.FunctionCall(_RALLY_UNITS_MINIMAP, [_NOT_QUEUED, [29, 46]])
 
         elif obs.observation["player"][_SUPPY_USED] < obs.observation["player"][_SUPPLY_MAX] and \
                 _TRAIN_MARINE in obs.observation["available_actions"]:
