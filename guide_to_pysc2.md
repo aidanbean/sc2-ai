@@ -178,6 +178,8 @@ returned in the order (y, x), but you must pass in the values in the order (x, y
 
 - To execute a action, you must call `actions.FunctionCall("function", "arguments for this function")` in `def step()`
 
+- variables store in agent class with be saved to the next eposide. 
+
 ## Python:
 `__future__`: avoid confusion on different import tools, avoid incompatiablility in different version of python
 

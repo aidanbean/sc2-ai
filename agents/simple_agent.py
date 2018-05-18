@@ -63,16 +63,19 @@ class SimpleAgent(base_agent.BaseAgent):
     barrack_built = False
 
     # attacked and control
-    barracks_rallied = False
+    barracks_rallied = False # no need in bm
     barracks_selected = False
-    army_selected = False
-    army_rallied = False
+    army_selected = False # no need in bm
+    army_rallied = False # no need in bm
 
 
     def step(self, obs):
         """a agent that just mine very quickly
         and got defeated on full map"""
         super(SimpleAgent, self).step(obs)
+
+        print("barrack_build:", self.barrack_built)
+        print("barrack_select: ", self.barracks_selected)
 
         # locate base
         if self.base_top_left is None:
