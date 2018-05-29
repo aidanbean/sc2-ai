@@ -64,21 +64,17 @@ VALID_ACTIONS = [0, 1, 2, 3, 4]
 
 class StateProcessor():
     """
-    process a raw atari image.
-    convert to grey scale.
-    resize before feeding to network
-
-    Integrate with PySC2.
-    Figure out bit the input is, and how to pre process.
-    NumActions, stats to use etc etc
+    process a raw starcraft 2 minimap image.
     """
 
     def __init__(self):
         # build the tf graph
         with tf.variable_scope("state_processor"):
-            self.input_state = tf.placeholder(shape=[210, 160, 3], dtype=tf.uint8)
+            # input will be the 64 x 64 x 3 minimap rgb values
+            self.input_state = tf.placeholder(shape=[64, 64, 3], dtype=tf.uint8)
             self.output = tf.image.rgb_to_grayscale(self.input_state)
-            self.output = tf.image.crop_to_bounding_box(self.output, 34, 0, 160, 160)
+            # after this, we don't need to crop because we are using whole minimap.
+            # still resize to 84 x 84 for compatibility purposes:
             self.output = tf.image.resize_images(
                 self.output, [84, 84], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
             self.output = tf.squeeze(self.output)
@@ -87,7 +83,7 @@ class StateProcessor():
         """
         Arguments:
             sess: a tf session object
-            state: a [210, 160, 3] atari rgb state
+            state: a [64, 64, 3] starcraft2 minimap rgb state
         Returns:
             processed [84, 84, 1] grayscale state
         """
