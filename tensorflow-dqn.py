@@ -361,7 +361,7 @@ def deep_q_learning(sess,
 			# similar to earlier when loading replay memory with first step 
 			action_probs = policy(sess, state, epsilon)
 			action = np.random.choice(np.arange(len(VALID_ACTIONS)), p=action_probs)
-			next_state, rewar, done, _ = env.step(VALID_ACTIONS[action])
+			next_state, reward, done, _ = env.step(VALID_ACTIONS[action])
 			next_state = state_processor.process(sess, next_state)
 			next_state = np.append(state[:,:,1:], np.expand_dims(next_state,2), axis=2)
 
