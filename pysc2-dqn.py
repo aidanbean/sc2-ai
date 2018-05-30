@@ -305,6 +305,8 @@ def deep_q_learning(sess,
     # load initial experience into replay memory
     print("Populating replay memory...")
     state = env.reset()
+    # make the minimap data the state.
+    state = state[0].observation["rgb_minimap"].astype(np.uint8)
     state = state_processor.process(sess, state)
     state = np.stack([state] * 4, axis=2)
     for i in range(replay_memory_init_size):
@@ -324,6 +326,8 @@ def deep_q_learning(sess,
         if done:
             # if found goal, start over
             state = env.reset()
+            # make the minimap data the state.
+            state = state[0].observation["rgb_minimap"].astype(np.uint8)
             state = state_processor.process(sess, state)
             state = np.stack([state] * 4, axis=2)
 
