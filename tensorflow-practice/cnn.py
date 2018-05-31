@@ -80,10 +80,10 @@ sess.run(tf.global_variables_initializer())
 saver = tf.train.Saver()
 
 def train_loop():
-    for i in range(501):
+    for i in range(1001):
         batch_xs, batch_ys = mnist.train.next_batch(100)
         sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys, keep_prob: 0.5})
-        if i % 50 == 0:
+        if i % 100 == 0:
             save_path = saver.save(sess=sess, save_path="./saved_cnn_mnist.ckpt")
             print("saving to %s" % save_path)
             print(compute_accuracy(
@@ -91,6 +91,7 @@ def train_loop():
 
 
 if __name__ == '__main__':
+    train_loop()
     saver.restore(sess=sess, save_path="./saved_cnn_mnist.ckpt")
     print("loading training model: ")
     print(compute_accuracy(mnist.test.images[:1000], mnist.test.labels[:1000]))
