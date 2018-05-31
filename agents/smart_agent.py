@@ -11,6 +11,11 @@ python -m pysc2.bin.agent \
 --norender
 
 this agent is modified for just build marine
+
+description:
+the agent follow a determinstic patten and build two depot, one barrack and 19 marines in the first two episode.
+
+It might trap in a local minimum.
 """
 
 import random
