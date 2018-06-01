@@ -5,6 +5,7 @@
 this file define all the flags includes game configuration, and threads
 for agent env interaction, refer to run_loop.py
 
+to train: python -m main --map=BuildMarines
 """
 
 
@@ -44,7 +45,7 @@ flags.DEFINE_bool("use_feature_units", False,
 
 flags.DEFINE_integer("max_agent_steps", 0, "Total agent steps.")
 flags.DEFINE_integer("game_steps_per_episode", None, "Game steps per episode.")
-flags.DEFINE_integer("max_episodes", 0, "Total episodes.")
+flags.DEFINE_integer("max_episodes", 10000, "Total episodes.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 
 flags.DEFINE_string("agent", "dqn_agent.basic_dqn_agent.MoveToBeacon",
@@ -62,7 +63,7 @@ flags.DEFINE_bool("profile", False, "Whether to turn on code profiling.")
 flags.DEFINE_bool("trace", False, "Whether to trace the code execution.")
 flags.DEFINE_integer("parallel", 1, "How many instances to run in parallel.")
 
-flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
+flags.DEFINE_bool("save_replay", False, "Whether to save a replay at the end.")
 
 flags.DEFINE_string("map", None, "Name of a map to use.")
 flags.mark_flag_as_required("map")
