@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """ intro: a two layer nerual network for q-value perdiction and value iteration,
     this class is highly feasible and can be used in any game environment !!!
     approximator: adam algorithm
