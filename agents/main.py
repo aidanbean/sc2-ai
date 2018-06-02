@@ -48,7 +48,7 @@ flags.DEFINE_integer("game_steps_per_episode", None, "Game steps per episode.")
 flags.DEFINE_integer("max_episodes", 10000, "Total episodes.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 
-flags.DEFINE_string("agent", "dqn_agent.basic_dqn_agent.MoveToBeacon",
+flags.DEFINE_string("agent", "dqn_agents.dqn_agent.DQNAgent",
                     "Which agent to run, as a python path to an Agent class.")
 flags.DEFINE_enum("agent_race", "random", sc2_env.Race._member_names_,  # pylint: disable=protected-access
                   "Agent 1's race.")
