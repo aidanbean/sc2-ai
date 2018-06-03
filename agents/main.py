@@ -75,7 +75,7 @@ def run_thread(agent_classes, players, map_name, visualize):
       map_name=map_name,
       players=players,
       agent_interface_format=sc2_env.parse_agent_interface_format(
-          feature_screen=FLAGS.feature_screen_size,
+    feature_screen=FLAGS.feature_screen_size,
           feature_minimap=FLAGS.feature_minimap_size,
           rgb_screen=FLAGS.rgb_screen_size,
           rgb_minimap=FLAGS.rgb_minimap_size,

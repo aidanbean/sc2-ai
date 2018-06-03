@@ -18,7 +18,7 @@ from pysc2.lib import actions, features
 
 from .utils import preprocess_screen
 
-_PLAYER_RELATIVE = features.PlayerRelative.SELF
+_PLAYER_RELATIVE = features.PlayerRelative.ALLY
 
 
 class DQNAgent(base_agent.BaseAgent):
@@ -48,9 +48,10 @@ class DQNAgent(base_agent.BaseAgent):
         """
         super(DQNAgent, self).step(obs)
         # obs.observation.screen_feature is (17, 64, 64)
-        # screen = np.array(obs.observation.feature_screen, dtype=np.float32)
-        # screen = np.expand_dims(preprocess_screen(screen), axis=0)
-        print(obs.observation.feature_screen.shape, obs.observation.feature_screen[_PLAYER_RELATIVE])
+        screen = np.array(obs.observation.feature_screen, dtype=np.float32)
+        screen_input = np.expand_dims(preprocess_screen(screen), axis=0)
+
+
 
         self.steps += 1
         self.reward += obs.reward
