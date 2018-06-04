@@ -17,7 +17,7 @@ from pysc2.agents import base_agent
 from pysc2.lib import actions
 from pysc2.lib import features
 
-from utils import preprocess_screen, screen_channel
+from .utils import preprocess_screen, screen_channel
 
 _PLAYER_RELATIVE = features.PlayerRelative.ALLY
 
@@ -100,34 +100,78 @@ class DuelingAgent(object):
         define convolution network layers (two conv, two pool, one fully-connected)
         two cnn nets with above config and
         input: screen feature
+
+        [None, screen_channel(), self.ssize, self.ssize] -> [None, self.ssize, self.ssize, screen_channel()]
+        traditional input dims:  Batch  size x  Height  x  Width  x  Channels
+        tradition weight: Height  x  Width  x  Input   Channels  x  Output   Channels
         output: spatial action output, non-spatial action output
+
+
         """
+
         # Extract features
-        with tf.variable_scope('front'):
-            sconv1 = layers.conv2d(tf.transpose(self.screen, [0, 2, 3, 1]),num_outputs=16,kernel_size=5,stride=1,scope='sconv1')
-            sconv2 = layers.conv2d(sconv1,num_outputs=32,kernel_size=3,stride=1,scope='sconv2')
-            info_fc = layers.fully_connected(layers.flatten(self.info),num_outputs=256,activation_fn=tf.tanh,scope='info_fc')
+
+        sconv1 = tf.layers.conv2d(
+            inputs=tf.transpose(a=self.screen, perm=[0, 2, 3, 1]),
+            filters=16,
+            kernel_size=[5, 5],
+            strides=[1, 1],
+            padding='same',
+            activation=tf.nn.relu,
+            name='sconv1'   # 1st conv2d feature layer
+        )
+
+        # pooling can be inserted here
+
+        sconv2 = tf.layers.conv2d(
+            inputs=sconv1,
+            filters=32,
+            kernel_size=[3, 3],
+            strides=[1, 1],
+            padding='same',
+            activation=tf.nn.relu,
+            name='sconv2')  # 2nd conv2d feature layer
 
         # Compute spatial actions
-        feat_conv = tf.concat([sconv2], axis=3)
-        spatial_action = layers.conv2d(feat_conv,num_outputs=1,kernel_size=1,stride=1,activation_fn=None,scope='spatial_action')
-        spatial_action = tf.nn.softmax(layers.flatten(spatial_action))
+        # feat_conv = tf.concat([sconv2], axis=3) # concat minimap and screen on channel dimension
 
-        # Compute non spatial actions
-        with tf.variable_scope('Value'):
-            self.V_feat_fc = tf.concat([layers.flatten(sconv2), 1], axis=1)
-            self.V_feat_fc = layers.fully_connected(self.V_feat_fc,num_outputs=256,activation_fn=tf.nn.relu,scope='feat_fc')
+        spatial_action = tf.layers.conv2d(
+            inputs=sconv2,
+            filters=1,
+            kernel_size=[1, 1],
+            strides=(1, 1),
+            padding='same',
+            activation=None,
+            name='saptial_action')
+        spatial_action = tf.nn.softmax(tf.layers.flatten(spatial_action))
 
-        with tf.variable_scope('Advantage'):
-            self.A_feat_fc = tf.concat([layers.flatten(sconv2), info_fc], axis=1)
-            self.A_feat_fc = layers.fully_connected(self.A_feat_fc,num_outputs=256,activation_fn=tf.nn.relu,scope='feat_fc')
+        # Compute non spatial actions and value
+        info_fc = tf.layers.dense(
+            inputs=tf.layers.flatten(inputs=self.info),
+            units=256,
+            activation=tf.tanh,
+            name='info_fc')
 
-        non_spatial_action = layers.fully_connected(feat_fc,num_outputs=len(actions.FUNCTIONS),activation_fn=tf.nn.softmax,scope='non_spatial_action')
+        feat_fc = tf.concat([layers.flatten(sconv2), info_fc], axis=1)
+        feat_fc = tf.layers.dense(
+            inputs=feat_fc,
+            units=256,
+            activation=tf.nn.relu,
+            name='feat_fc')
+        non_spatial_action = tf.layers.dense(inputs=feat_fc,
+                                             units=len(actions.FUNCTIONS),
+                                             activation=tf.nn.softmax,
+                                             name='non_spatial_action')
 
+        q = tf.reshape(
+            tensor=tf.layers.dense(
+                inputs=feat_fc,
+                units=1,
+                activation=None,
+                name='q'),
+            shape=[-1])
 
-        q_eval = tf.reshape(layers.fully_connected(feat_fc, num_outputs=1,activation_fn=None,scope='q_eval'), [-1])
-
-        return spatial_action, non_spatial_action, q_eval
+        return spatial_action, non_spatial_action, q
 
     def build_model(self):
         """
@@ -140,7 +184,7 @@ class DuelingAgent(object):
         self.screen = tf.placeholder(tf.float32, [None, screen_channel(), self.ssize, self.ssize], name='screen')
         self.info = tf.placeholder(tf.float32, [None, self.isize], name='info')
         # build eval net for spatial, non-spatial and return q_eval scope name = eval_net, collection name = eval...
-        with tf.variable_scope('eval_net') as scope:
+        with tf.variable_scope('eval_net'):
             # c_name = ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
             self.spatial_action, self.non_spatial_action, self.q_eval = self.build_network()
 
@@ -160,7 +204,8 @@ class DuelingAgent(object):
 
         # obs.observation.screen_feature is (17, 64, 64)
         screen = np.array(obs.observation.feature_screen, dtype=np.float32)
-        screen_input = np.expand_dims(preprocess_screen(screen), axis=0)
+        screen_input = np.expand_dims(preprocess_screen(screen), axis=0) # return (bs=1, channel=42, h=64, w=64)
+        # print("input shape: ", screen_input.shape)
         self.steps += 1
         self.reward += obs.reward
         return actions.FunctionCall(actions.FUNCTIONS.no_op.id, [])
@@ -174,26 +219,26 @@ class DuelingAgent(object):
         """when certain number of replay size reach, learn from minibatch replay"""
         pass
 
-if __name__ == '__main__':
-    agent = DuelingAgent()
-    agent.setup(
-        obs_spec=1,
-        action_spec=1,
-        screen_size=64,
-        learning_rate=0.001,
-        reward_decay=0.9,
-        e_greedy=0.9,
-        replace_target_iter=200,
-        memory_size=2000,
-        batch_size=32,
-        e_greedy_increment=None,
-        output_graph=False,
-        sess=None
-    )
-
-    # print([n.name for n in tf.get_default_graph().as_graph_def().node])
-    agent.sess.run(agent.replace_target_op)
-    print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope='target_net'))
+# if __name__ == '__main__':
+#     agent = DuelingAgent()
+#     agent.setup(
+#         obs_spec=1,
+#         action_spec=1,
+#         screen_size=64,
+#         learning_rate=0.001,
+#         reward_decay=0.9,
+#         e_greedy=0.9,
+#         replace_target_iter=200,
+#         memory_size=2000,
+#         batch_size=32,
+#         e_greedy_increment=None,
+#         output_graph=False,
+#         sess=None
+#     )
+#
+#     # print([n.name for n in tf.get_default_graph().as_graph_def().node])
+#     agent.sess.run(agent.replace_target_op)
+#     print(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope='target_net'))
 
 
 

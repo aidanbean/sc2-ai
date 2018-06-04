@@ -29,7 +29,7 @@ def preprocess_screen(screen):
                 indy, indx = (screen[i] == j).nonzero() # get coor of all points whose value = j in feature layer i
                 layer[j, indy, indx] = 1 # make all these point equal to value 1
             layers.append(layer)
-    return np.concatenate(layers, axis=0)
+    return np.concatenate(layers, axis=0)   # size = (42, 64, 64)
 
 
 def screen_channel():
