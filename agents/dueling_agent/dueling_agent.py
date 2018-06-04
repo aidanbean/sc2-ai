@@ -17,7 +17,7 @@ from pysc2.agents import base_agent
 from pysc2.lib import actions
 from pysc2.lib import features
 
-from utils import preprocess_screen, screen_channel
+from .utils import preprocess_screen, screen_channel
 
 _PLAYER_RELATIVE = features.PlayerRelative.ALLY
 
@@ -25,9 +25,9 @@ _PLAYER_RELATIVE = features.PlayerRelative.ALLY
 class DuelingAgent(object):
 
     def __init__(self):
-        self.reward = 0
+        # self.reward = 0
         self.episodes = 0
-        self.steps = 0
+        # self.steps = 0
         self.obs_spec = None
         self.action_spec = None
         self.isize = len(actions.FUNCTIONS)
@@ -250,13 +250,15 @@ class DuelingAgent(object):
 
     def step(self, obs):
         """
-        get observation, return action using RL
+        choose action
+        get observation, return spatial, nonspatial action using RL
         obs = observation spec in lib/features.py : 218
         """
 
         # obs.observation.screen_feature is (17, 64, 64)
         screen = np.array(obs.observation.feature_screen, dtype=np.float32)
         screen_input = np.expand_dims(preprocess_screen(screen), axis=0) # return (bs=1, channel=42, h=64, w=64)
+        print("reward", obs.reward)
 
         # get available actions
         info = np.zeros([1, self.isize], dtype=np.float32)
@@ -270,14 +272,34 @@ class DuelingAgent(object):
         # select action and spatial target
         non_spatial_action = non_spatial_action.ravel() # flatten
         spatial_action = spatial_action.ravel() # flatten
-        valid_actions = obs.observation['available_actions']
+        valid_actions = obs.observation['available_actions']    # available action index
         act_id = valid_actions[np.argmax(non_spatial_action[valid_actions])]
-        target = np.argmax(spatial_action)
+        target = np.argmax(spatial_action)  # position to move
         target = [int(target // self.ssize), int(target % self.ssize)]
 
-        self.steps += 1
-        self.reward += obs.reward
-        return actions.FunctionCall(actions.FUNCTIONS.no_op.id, [])
+        # e-greedy action selection (IN THIS NETWORK, WE EXPLORE ONLY IF A RANDOM FRACTION IS ABOVE EPSILON)
+        if np.random.random() > self.epsilon:
+            # randomly select non-spatial action
+            act_id = np.random.choice(valid_actions)
+
+            # randomly select spatial action
+            dy = np.random.randint(-4, 5)
+            target[0] = int(max(0, min(self.ssize - 1, target[0] + dy)))
+            dx = np.random.randint(-4, 5)
+            target[1] = int(max(0, min(self.ssize - 1, target[1] + dx)))
+
+        # Set act_id and act_args
+        act_args = []
+        for arg in actions.FUNCTIONS[act_id].args:
+            if arg.name in ('screen', 'minimap', 'screen2'):    # in fact, only screen
+                act_args.append([target[1], target[0]]) # y x to x y
+            else:
+                act_args.append([0])  # [0] means not queue
+
+        # self.steps += 1
+        # self.reward += obs.reward
+
+        return actions.FunctionCall(act_id, act_args)
 
     def store_transition(self, obs, a, obs_):
         """store the transition in experience replay"""
