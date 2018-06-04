@@ -22,10 +22,10 @@ from future.builtins import range  # pylint: disable=redefined-builtin
 
 from pysc2 import maps
 from pysc2.env import available_actions_printer
-from pysc2.env import run_loop
 from pysc2.env import sc2_env
 from pysc2.lib import stopwatch
 
+from run_loop import run_loop
 
 FLAGS = flags.FLAGS
 flags.DEFINE_bool("render", True, "Whether to render with pygame.")
@@ -48,7 +48,7 @@ flags.DEFINE_integer("game_steps_per_episode", None, "Game steps per episode.")
 flags.DEFINE_integer("max_episodes", 10000, "Total episodes.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 
-flags.DEFINE_string("agent", "dqn_agents.dqn_agent.DQNAgent",
+flags.DEFINE_string("agent", "dueling_agent.dueling_agent.DuelingAgent",
                     "Which agent to run, as a python path to an Agent class.")
 flags.DEFINE_enum("agent_race", "random", sc2_env.Race._member_names_,  # pylint: disable=protected-access
                   "Agent 1's race.")
@@ -86,7 +86,7 @@ def run_thread(agent_classes, players, map_name, visualize):
       visualize=visualize) as env:
     env = available_actions_printer.AvailableActionsPrinter(env)
     agents = [agent_cls() for agent_cls in agent_classes]
-    run_loop.run_loop(agents, env, FLAGS.max_agent_steps, FLAGS.max_episodes)
+    run_loop(agents, env, FLAGS.max_agent_steps, FLAGS.max_episodes, FLAGS.feature_screen_size)
     if FLAGS.save_replay:
       env.save_replay(agent_classes[0].__name__)
 
