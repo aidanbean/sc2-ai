@@ -16,7 +16,7 @@ class PySC2EnvWrapper(base_env_wrapper.BaseEnvWrapper):
         super(PySC2EnvWrapper, self).__init__(env)
         self._action_spec = self.action_spec()[0]
         self._obsevation_spec = self.observation_spec()[0]
-        self.all_obs
+        # self.all_obs
         
     def reset(self, *args, **kwargs):
         features="rgb_screen"

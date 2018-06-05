@@ -342,7 +342,9 @@ def deep_q_learning(sess,
     # load initial experience into replay memory
     print("Populating replay memory...")
     state = env.reset()
+
     state, _, _ = env.step(actions.FunctionCall(_SELECT_ARMY, [_SELECT_ADD]))
+
     # make the minimap data the state.
     #state = state[0].observation["rgb_minimap"].astype(np.uint8)
     #state = state_processor.process(sess, state)
@@ -354,7 +356,9 @@ def deep_q_learning(sess,
         action_probs = policy(sess, state, epsilons[min(total_t, epsilon_decay_steps - 1)])
         # randomly select an action according to action probs from policy
         action = np.random.choice(np.arange(len(VALID_ACTIONS)), p=action_probs)
-        action = action_mapping[action]
+        # action = action_mapping[action]
+        action = action_mapping[0]
+
         # openAI gym take a step in action space
         next_state, reward, done = env.step(action)
         # process image data
@@ -420,6 +424,7 @@ def deep_q_learning(sess,
             action_probs = policy(sess, state, epsilon)
             action = np.random.choice(np.arange(len(VALID_ACTIONS)), p=action_probs)
             action = action_mapping[action]
+            action = action_mapping[0]
             next_state, reward, done = env.step(action)
             #next_state = state_processor.process(sess, next_state)
             #next_state = np.append(state[:, :, 1:], np.expand_dims(next_state, 2), axis=2)
@@ -486,7 +491,7 @@ if __name__ == '__main__':
     tf.reset_default_graph()
 
     # Where we save our checkpoints and graphs
-    experiment_dir = os.path.abspath("./experiments/{}".format(env.spec.id))
+    experiment_dir = os.path.abspath("./experiments/")#{}".format(env.spec.id))
     # Create a glboal step variable
     global_step = tf.Variable(0, name='global_step', trainable=False)
 
