@@ -2,7 +2,17 @@
 # -*- coding: utf-8 -*-
 
 """
-introduction: this agent use a dueling deep q network
+introduction: this agent uses dueling deep q network
+running the agent: python -m main
+
+reference:
+    paper:
+        deepmind: https://arxiv.org/abs/1708.04782
+        dueling dqn: https://arxiv.org/abs/1511.06581
+        a3c: https://arxiv.org/abs/1602.01783
+    code:
+        https://github.com/XHUJOY/pysc2-agents
+        https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow/tree/master/contents/5.3_Dueling_DQN
 """
 
 from __future__ import absolute_import
@@ -224,7 +234,7 @@ class DuelingAgent(object):
         self.non_spatial_action_selected = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='non_spatial_action_selected')
         self.q_target = tf.placeholder(tf.float32, [None], name='q_target')
 
-        # original A3C loss calculation
+        # A3C loss calculation in deepmind paper
         # action log probability
         spatial_action_prob = tf.reduce_sum(self.spatial_action * self.spatial_action_selected, axis=1)
         spatial_action_log_prob = tf.log(tf.clip_by_value(spatial_action_prob, 1e-10, 1.))
@@ -238,7 +248,7 @@ class DuelingAgent(object):
         # self.summary.append(tf.summary.histogram('spatial_action_prob', spatial_action_prob))
         # self.summary.append(tf.summary.histogram('non_spatial_action_prob', non_spatial_action_prob))
 
-        # compute loss
+        # compute loss with gradient clipping
         action_log_prob = self.valid_spatial_action * spatial_action_log_prob + non_spatial_action_log_prob
         advantage = tf.stop_gradient(self.q_target - self.q_eval)
         policy_loss = - tf.reduce_mean(action_log_prob * advantage)
