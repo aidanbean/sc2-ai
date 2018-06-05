@@ -13,43 +13,49 @@ from collections import deque, namedtuple
 from pysc2.env import sc2_env
 from pysc2.lib import actions
 from pysc2.lib import features
+from pysc2_env_wrapper import PySC2EnvWrapper
 
 _MOVE_SCREEN = actions.FUNCTIONS.Move_screen.id
-_ATTACK_SCREEN = actions.FUnctions.Attack_screen.id
-#_SELECT_ARMY = actions.FUNCTIONS.select_army.id
-#_SELECT_ALL = [0]
+_ATTACK_SCREEN = actions.FUNCTIONS.Attack_screen.id
+_SELECT_ARMY = actions.FUNCTIONS.select_army.id
+_SELECT_ALL = [0]
 _NOT_QUEUED = [0]
 
 step_mul = 8
 
 """
 Tasks:
-	1. State processing 
-	process the state, which is just a picture in Atari. 
-	For us the input may be a vector of actions, stats, etc
-	Needs to be done to figure out how to interface with the Q Estimator Network
 
-	2. Building the Q network
-	Atari used image processing, 3 conv layers, 1 fully connected 
-	We can use a simple feed forward, or something crazy haha. Capsule net? 
+TODO: Create a mapping between action id and the composed action
+TODO: Select all marines if they are not selected; Note: DefeatRoaches, DefeatZerglingsAndBanelings
+      can have mid-episode state change
+TODO: Make sure PySC2EnvWrapper returns the exact same results to be passed as OpenAI gym env
+TODO: Train the network 
+TODO: Demonstrate results
+TODO: Write Reports and other Deliverables
 
-	3. Picking a Action Policy
-	The implementation provided is a epsilon greedy policy 
-	https://stats.stackexchange.com/questions/248131/epsilon-greedy-policy-improvement?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-	provides a probablility for possible actions
-	We could pick our own or a different policy, i think A3C policy is a little diffeerent 
+1. State processing 
+process the state, which is just a picture in Atari. 
+For us the input may be a vector of actions, stats, etc
+Needs to be done to figure out how to interface with the Q Estimator Network
 
-	4. Integration into Q learning model 
-	Put everything together.
-	Load replay memory, Big for loop for running through number of episodes 
+2. Building the Q network
+Atari used image processing, 3 conv layers, 1 fully connected 
+We can use a simple feed forward, or something crazy haha. Capsule net? 
+
+3. Picking a Action Policy
+The implementation provided is a epsilon greedy policy 
+https://stats.stackexchange.com/questions/248131/epsilon-greedy-policy-improvement?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+provides a probablility for possible actions
+We could pick our own or a different policy, i think A3C policy is a little diffeerent 
+
+4. Integration into Q learning model 
+Put everything together.
+Load replay memory, Big for loop for running through number of episodes 
 
 """
 
-env = sc2_env.SC2Env(
-    map_name="MoveToBeacon",
-    step_mul=step_mul,
-    rgb_screen_size=84,
-    rgb_minimap_size=84)
+
 
 """
 Actions: Move_screen (MS), Attack_screen (AS)
@@ -66,8 +72,6 @@ is never queued.
 25 = 12/Attack_screen (3/queued [0]; 0/screen [0, 10])
 ...
 47 = 12/Attack_screen (3/queued [0]; 0/screen [73, 73])
-
-TODO: Create a mapping between action id and the composed action
 """
 
 VALID_ACTIONS = list(range(48))
@@ -256,6 +260,17 @@ def make_epsilon_greedy_policy(estimator, nA):
 
     return policy_fn
 
+#TODO: Complete function
+def compose_action_from_id(idx):
+    ''' For reference; return actions.FunctionCall(function_id, args)
+    def step(self, obs):
+        super(RandomAgent, self).step(obs)
+        function_id = numpy.random.choice(obs.observation.available_actions)
+        args = [[numpy.random.randint(0, size) for size in arg.sizes]
+                for arg in self.action_spec.functions[function_id].args]
+                return actions.FunctionCall(function_id, args)
+    '''
+    pass
 
 # DQN algorithm
 def deep_q_learning(sess,
@@ -441,6 +456,17 @@ def deep_q_learning(sess,
 
 
 if __name__ == '__main__':
+    agent_interface_format = features.parse_agent_interface_format(
+        rgb_screen=84,
+        rgb_minimap=84,
+    )
+
+    env = sc2_env.SC2Env(
+        map_name="MoveToBeacon", #CollectMineralShards, DefeatRoaches, DefeatZerglingsAndBanelings
+        step_mul=step_mul,
+        agent_interface_format=agent_interface_format)
+
+    env = PySC2EnvWrapper(env)
     tf.reset_default_graph()
 
     # Where we save our checkpoints and graphs
