@@ -18,7 +18,7 @@ from pysc2_env_wrapper import PySC2EnvWrapper
 _MOVE_SCREEN = actions.FUNCTIONS.Move_screen.id
 _ATTACK_SCREEN = actions.FUNCTIONS.Attack_screen.id
 _SELECT_ARMY = actions.FUNCTIONS.select_army.id
-_SELECT_ALL = [0]
+_SELECT_ADD = [0]
 _NOT_QUEUED = [0]
 
 step_mul = 8
@@ -261,7 +261,7 @@ def make_epsilon_greedy_policy(estimator, nA):
     return policy_fn
 
 #TODO: Complete function
-def compose_action_from_id(idx):
+def compose_action_from_id():
     ''' For reference; return actions.FunctionCall(function_id, args)
     def step(self, obs):
         super(RandomAgent, self).step(obs)
@@ -269,8 +269,18 @@ def compose_action_from_id(idx):
         args = [[numpy.random.randint(0, size) for size in arg.sizes]
                 for arg in self.action_spec.functions[function_id].args]
                 return actions.FunctionCall(function_id, args)
-    '''
-    pass
+    ''' 
+    mapping = {}
+    for k in range(24):
+        for i in range(3,84,7):
+            for j in range(3,84,7):
+                function_id1 = _MOVE_SCREEN
+                function_id2 = _ATTACK_SCREEN
+                args1 = [_NOT_QUEUED,[i, j]]
+                args2 = [_NOT_QUEUED,[i, j]]
+                mapping[k] = actions.FunctionCall(function_id1, args1)
+                mapping[k+24] = actions.FunctionCall(function_id2, args2)
+    return mapping
 
 # DQN algorithm
 def deep_q_learning(sess,
@@ -328,9 +338,11 @@ def deep_q_learning(sess,
     # q policy we are following
     policy = make_epsilon_greedy_policy(q_estimator, len(VALID_ACTIONS))
 
+    action_mapping = compose_action_from_id()
     # load initial experience into replay memory
     print("Populating replay memory...")
     state = env.reset()
+    state, _, _ = env.step(actions.FunctionCall(_SELECT_ARMY, [_SELECT_ADD]))
     # make the minimap data the state.
     #state = state[0].observation["rgb_minimap"].astype(np.uint8)
     #state = state_processor.process(sess, state)
@@ -342,16 +354,18 @@ def deep_q_learning(sess,
         action_probs = policy(sess, state, epsilons[min(total_t, epsilon_decay_steps - 1)])
         # randomly select an action according to action probs from policy
         action = np.random.choice(np.arange(len(VALID_ACTIONS)), p=action_probs)
+        action = action_mapping[action]
         # openAI gym take a step in action space
-        next_state, reward, done, _ = env.step(VALID_ACTIONS[action])
+        next_state, reward, done = env.step(action)
         # process image data
-        next_state = state_processor.process(sess, next_state)
-        next_state = np.append(state[:, :, 1:], np.expand_dims(next_state, 2), axis=2)
+        #next_state = state_processor.process(sess, next_state)
+        #next_state = np.append(state[:, :, 1:], np.expand_dims(next_state, 2), axis=2)
         # add action to replay memory
         replay_memory.append(Transition(state, action, reward, next_state, done))
         if done:
             # if found goal, start over
             state = env.reset()
+            state, _, _ = env.step(actions.FunctionCall(_SELECT_ARMY, [_SELECT_ADD]))
             # make the minimap data the state.
             #state = state[0].observation["rgb_minimap"].astype(np.uint8)
             #state = state_processor.process(sess, state)
@@ -375,6 +389,7 @@ def deep_q_learning(sess,
 
         # reset openAI environment
         state = env.reset()
+        state, _, _ = env.step(actions.FunctionCall(_SELECT_ARMY, [_SELECT_ADD]))
         #state = state_processor.process(sess, state)
         #state = np.stack([state] * 4, axis=2)
         loss = None
@@ -404,7 +419,8 @@ def deep_q_learning(sess,
             # similar to earlier when loading replay memory with first step
             action_probs = policy(sess, state, epsilon)
             action = np.random.choice(np.arange(len(VALID_ACTIONS)), p=action_probs)
-            next_state, reward, done = env.step(VALID_ACTIONS[action])
+            action = action_mapping[action]
+            next_state, reward, done = env.step(action)
             #next_state = state_processor.process(sess, next_state)
             #next_state = np.append(state[:, :, 1:], np.expand_dims(next_state, 2), axis=2)
 
