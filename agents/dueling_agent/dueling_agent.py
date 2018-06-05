@@ -94,7 +94,7 @@ class DuelingAgent(object):
         else:
             self.sess = sess
 
-        self.summary_writer = tf.summary.FileWriter("logs/", self.sess.graph)
+        # self.summary_writer = tf.summary.FileWriter("logs/", self.sess.graph)
 
         print("session initialized")
         pass
@@ -235,8 +235,8 @@ class DuelingAgent(object):
         non_spatial_action_prob = non_spatial_action_prob / valid_non_spatial_action_prob
         non_spatial_action_log_prob = tf.log(tf.clip_by_value(non_spatial_action_prob, 1e-10, 1.))
 
-        self.summary.append(tf.summary.histogram('spatial_action_prob', spatial_action_prob))
-        self.summary.append(tf.summary.histogram('non_spatial_action_prob', non_spatial_action_prob))
+        # self.summary.append(tf.summary.histogram('spatial_action_prob', spatial_action_prob))
+        # self.summary.append(tf.summary.histogram('non_spatial_action_prob', non_spatial_action_prob))
 
         # compute loss
         action_log_prob = self.valid_spatial_action * spatial_action_log_prob + non_spatial_action_log_prob
@@ -251,12 +251,12 @@ class DuelingAgent(object):
         grads = opt.compute_gradients(loss)
         cliped_grad = []
         for grad, var in grads:
-            self.summary.append(tf.summary.histogram(var.op.name, var))
-            self.summary.append(tf.summary.histogram(var.op.name + '/grad', grad))
+            # self.summary.append(tf.summary.histogram(var.op.name, var))
+            # self.summary.append(tf.summary.histogram(var.op.name + '/grad', grad))
             grad = tf.clip_by_norm(grad, 10.0)
             cliped_grad.append([grad, var])
         self.train_op = opt.apply_gradients(cliped_grad)
-        self.summary_op = tf.summary.merge(self.summary)
+        # self.summary_op = tf.summary.merge(self.summary)
 
         # # dueling net optimizer method
         # self.q_target = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='q_target')
@@ -447,9 +447,9 @@ class DuelingAgent(object):
                 self.non_spatial_action_selected: non_spatial_action_selected
                 }
 
-        _, summary = self.sess.run([self.train_op, self.summary_op], feed_dict=feed)
-        self.summary_writer.add_summary(summary, self.learn_step_counter)
-        # _ = self.sess.run(self.train_op, feed_dict=feed)
+        # _, summary = self.sess.run([self.train_op, self.summary_op], feed_dict=feed)
+        # self.summary_writer.add_summary(summary, self.learn_step_counter)
+        _ = self.sess.run(self.train_op, feed_dict=feed)
 
         self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
         self.learn_step_counter += 1
