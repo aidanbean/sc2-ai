@@ -13,6 +13,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as layers
 from collections import deque
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -21,8 +22,6 @@ from pysc2.lib import actions
 from pysc2.lib import features
 
 from .utils import preprocess_screen, screen_channel, buildmarines_reward
-
-_PLAYER_RELATIVE = features.PlayerRelative.ALLY
 
 
 class DuelingAgent(object):
@@ -364,14 +363,15 @@ class DuelingAgent(object):
 
     def learn(self):
         """when certain number of replay size reach, learn from minibatch replay"""
+        print("\nstart learning...")
 
         # replace target net parameters
         if self.learn_step_counter % self.replace_target_iter == 0:
             self.sess.run(self.replace_target_op)
-            print('\ntarget_params_replaced\n')
+            print('\nreplaced target net parameters...')
 
         # sample mini-batch
-        sample_indices = np.random.choice(self.memory_size, size=self.batch_size)
+        sample_indices = np.random.choice(len(self.memory), size=self.batch_size)
         batch_memory = deque(list(np.array(self.memory)[sample_indices]))
 
         # extract s = [], a = [], s' = [], r = []
@@ -456,25 +456,25 @@ class DuelingAgent(object):
         pass
 
 
-# if __name__ == '__main__':
-#     agent = DuelingAgent()
-#     agent.setup(
-#         obs_spec=1,
-#         action_spec=1,
-#         screen_size=64,
-#         learning_rate=0.001,
-#         reward_decay=0.9,
-#         e_greedy=0.9,
-#         replace_target_iter=200,
-#         memory_size=2000,
-#         batch_size=32,
-#         e_greedy_increment=None,
-#         sess=None
-#     )
-#
-#     for v in tf.get_default_graph().as_graph_def().node:
-#         print(v.name)
-#     pass
+if __name__ == '__main__':
+    agent = DuelingAgent()
+    agent.setup(
+        obs_spec=1,
+        action_spec=1,
+        screen_size=64,
+        learning_rate=0.001,
+        reward_decay=0.9,
+        e_greedy=0.9,
+        replace_target_iter=200,
+        memory_size=2000,
+        batch_size=32,
+        e_greedy_increment=None,
+        sess=None
+    )
+
+    for v in tf.get_default_graph().as_graph_def().node:
+        print(v.name)
+    pass
 
 
 
