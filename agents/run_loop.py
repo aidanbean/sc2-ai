@@ -30,8 +30,8 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
             reward_decay=0.9,
             e_greedy=0.9,
             replace_target_iter=50,
-            memory_size=500,
-            batch_size=32,
+            memory_size=1000,
+            batch_size=64,
             e_greedy_increment=None,
             sess=None
         )    # start tf session, build network, etc
@@ -71,7 +71,7 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
                     a.store_transition(obs=obs[0], a=actions[0], obs_=timesteps[0])
 
                 # agent learn from replay after every # of steps / frame
-                if (total_frames > 200) and (total_frames % 20 == 0):
+                if (total_frames > 300) and (total_frames % 100 == 0):
                     for a in agents:
                         a.learn()
 

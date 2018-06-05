@@ -338,6 +338,13 @@ class DuelingAgent(object):
         # self.steps += 1
         # self.reward += obs.reward
 
+        if act_id == 452:
+            #   TODO: debug this
+            _NO_OP = actions.FUNCTIONS.no_op.id
+            #   smart screen action return error when minimap value is below 28
+            return actions.FunctionCall(_NO_OP, [])
+
+        # print("return action with id: {} and args {} ".format(act_id, act_args))
         return actions.FunctionCall(act_id, act_args)
 
     def store_transition(self, obs, a, obs_):
@@ -383,6 +390,7 @@ class DuelingAgent(object):
         # sample mini-batch
         sample_indices = np.random.choice(len(self.memory), size=self.batch_size)
         batch_memory = deque(list(np.array(self.memory)[sample_indices]))
+        print("selecting minibatch of size: {}..." .format(len(batch_memory)))
 
         # extract s = [], a = [], s' = [], r = []
         screens = []
@@ -403,8 +411,6 @@ class DuelingAgent(object):
             screen = np.expand_dims(preprocess_screen(screen), axis=0)  # return (bs=1, channel=42, h=64, w=64)
             info = np.zeros([1, self.isize], dtype=np.float32)
             info[0, obs.observation['available_actions']] = 1
-            screens.append(screen)
-            infos.append(info)
 
             # s_ next state from obs_
             screen_next = np.array(obs_.observation.feature_screen, dtype=np.float32)
@@ -436,11 +442,12 @@ class DuelingAgent(object):
                     valid_spatial_action[i] = 1
                     spatial_action_selected[i, ind] = 1
 
-        screens = np.concatenate(screens, axis=0)
+        screens = np.concatenate(screens, axis=0) # (32, size of s)
         infos = np.concatenate(infos, axis=0)
         screens_next = np.concatenate(screens_next, axis=0)
         infos_next = np.concatenate(infos_next, axis=0)
-        rewards = np.concatenate(rewards, axis=0)
+
+        rewards = np.transpose(np.array(rewards)) # (32, r)
 
         # get q_next = Q(s', a': theta) to calculate y
         q_next = self.sess.run(self.q_next, feed_dict={self.screen: screens_next, self.info: infos_next})
