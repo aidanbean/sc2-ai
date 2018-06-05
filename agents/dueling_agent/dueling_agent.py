@@ -13,12 +13,14 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as layers
 from collections import deque
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 from pysc2.agents import base_agent
 from pysc2.lib import actions
 from pysc2.lib import features
 
-from utils import preprocess_screen, screen_channel, buildmarines_reward
+from .utils import preprocess_screen, screen_channel, buildmarines_reward
 
 _PLAYER_RELATIVE = features.PlayerRelative.ALLY
 
@@ -46,7 +48,6 @@ class DuelingAgent(object):
             memory_size=500,
             batch_size=32,
             e_greedy_increment=None,
-            output_graph=False,
             sess=None
     ):
         """
@@ -71,29 +72,32 @@ class DuelingAgent(object):
         self.learn_step_counter = 0
         # self.memory = np.zeros((self.memory_size, self.ssize*2+2))
         self.memory = deque()
+        self.summary = []
+
         # build model
         self.build_model()
 
         # this operation is for replace target net params with eval net params
-        # t_params = tf.get_collection('target_net_params')
-        # e_params = tf.get_collection('eval_net_params')
         t_params = tf.get_collection(key=tf.GraphKeys.GLOBAL_VARIABLES, scope='target_net')
         e_params = tf.get_collection(key=tf.GraphKeys.GLOBAL_VARIABLES, scope='eval_net')
         self.replace_target_op = [tf.assign(ref=t, value=e) for t, e in zip(t_params, e_params)]
 
         # init tf session
-        self.init_session(sess=sess, output_graph=output_graph)
+        self.init_session(sess=sess)
 
-    def init_session(self, sess, output_graph):
+    def init_session(self, sess):
         """handle tf session setup, tf log and tf graph"""
         # set up session
+        print("initialize session ...")
         if sess is None:
             self.sess = tf.Session()
             self.sess.run(tf.global_variables_initializer())
         else:
             self.sess = sess
-        if output_graph:
-            tf.summary.FileWriter("logs/", self.sess.graph)
+
+        self.summary_writer = tf.summary.FileWriter("logs/", self.sess.graph)
+
+        print("session initialized")
         pass
 
     def build_network(self):
@@ -110,6 +114,7 @@ class DuelingAgent(object):
 
         """
 
+        print("building network...")
         # Extract features
 
         sconv1 = tf.layers.conv2d(
@@ -202,6 +207,7 @@ class DuelingAgent(object):
         define optimizer for evaluation net
         """
 
+        print("building model...")
         # ---------------------------evaluation net for spatial, non-spatial---------------------------
         # cnn input features
         self.screen = tf.placeholder(tf.float32, [None, screen_channel(), self.ssize, self.ssize], name='screen')
@@ -210,6 +216,7 @@ class DuelingAgent(object):
         with tf.variable_scope('eval_net'):
             # c_name = ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
             self.spatial_action, self.non_spatial_action, self.q_eval = self.build_network()
+        # self.spatial_action, self.non_spatial_action, self.q_eval = self.build_network()
 
         # target value
         self.valid_spatial_action = tf.placeholder(tf.float32, [None], name='valid_spatial_action')
@@ -229,6 +236,9 @@ class DuelingAgent(object):
         non_spatial_action_prob = non_spatial_action_prob / valid_non_spatial_action_prob
         non_spatial_action_log_prob = tf.log(tf.clip_by_value(non_spatial_action_prob, 1e-10, 1.))
 
+        self.summary.append(tf.summary.histogram('spatial_action_prob', spatial_action_prob))
+        self.summary.append(tf.summary.histogram('non_spatial_action_prob', non_spatial_action_prob))
+
         # compute loss
         action_log_prob = self.valid_spatial_action * spatial_action_log_prob + non_spatial_action_log_prob
         advantage = tf.stop_gradient(self.q_target - self.q_eval)
@@ -242,9 +252,12 @@ class DuelingAgent(object):
         grads = opt.compute_gradients(loss)
         cliped_grad = []
         for grad, var in grads:
+            self.summary.append(tf.summary.histogram(var.op.name, var))
+            self.summary.append(tf.summary.histogram(var.op.name + '/grad', grad))
             grad = tf.clip_by_norm(grad, 10.0)
             cliped_grad.append([grad, var])
         self.train_op = opt.apply_gradients(cliped_grad)
+        self.summary_op = tf.summary.merge(self.summary)
 
         # # dueling net optimizer method
         # self.q_target = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='q_target')
@@ -271,6 +284,8 @@ class DuelingAgent(object):
         get observation, return spatial, nonspatial action using RL
         obs = observation spec in lib/features.py : 218
         """
+        # for v in tf.get_default_graph().as_graph_def().node:
+        #     print(v.name)
 
         # obs.observation.screen_feature is (17, 64, 64)
         screen = np.array(obs.observation.feature_screen, dtype=np.float32)
@@ -282,8 +297,7 @@ class DuelingAgent(object):
 
         # run session to obtain spatial action output and non spatial action array
         non_spatial_action, spatial_action = self.sess.run(
-            [self.non_spatial_action, self.spatial_action],
-            feed_dict={self.screen: screen, self.info: info})
+            [self.non_spatial_action, self.spatial_action], feed_dict={self.screen: screen, self.info: info})
 
         # select action and spatial target
         non_spatial_action = non_spatial_action.ravel() # flatten
@@ -420,7 +434,7 @@ class DuelingAgent(object):
 
         # get q_next = Q(s', a': theta) to calculate y
         q_next = self.sess.run(self.q_next, feed_dict={self.screen: screens_next, self.info: infos_next})
-        # q_eval = self.sess.run(self.q_eval, feed_dict={self.screen: screens, self.info: infos})
+        # q_next = self.sess.run(self.q_eval, feed_dict={self.screen: screens_next, self.info: infos_next})
         q_target = rewards + self.gamma * q_next
 
         # train
@@ -432,26 +446,35 @@ class DuelingAgent(object):
                 self.valid_non_spatial_action: valid_non_spatial_action,
                 self.non_spatial_action_selected: non_spatial_action_selected
                 }
-        _ = self.sess.run(self.train_op, feed_dict=feed)
+
+        _, summary = self.sess.run([self.train_op, self.summary_op], feed_dict=feed)
+        self.summary_writer.add_summary(summary, self.learn_step_counter)
+        # _ = self.sess.run(self.train_op, feed_dict=feed)
+
+        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
+        self.learn_step_counter += 1
         pass
 
 
-if __name__ == '__main__':
-    agent = DuelingAgent()
-    agent.setup(
-        obs_spec=1,
-        action_spec=1,
-        screen_size=64,
-        learning_rate=0.001,
-        reward_decay=0.9,
-        e_greedy=0.9,
-        replace_target_iter=200,
-        memory_size=2000,
-        batch_size=32,
-        e_greedy_increment=None,
-        output_graph=False,
-        sess=None
-    )
+# if __name__ == '__main__':
+#     agent = DuelingAgent()
+#     agent.setup(
+#         obs_spec=1,
+#         action_spec=1,
+#         screen_size=64,
+#         learning_rate=0.001,
+#         reward_decay=0.9,
+#         e_greedy=0.9,
+#         replace_target_iter=200,
+#         memory_size=2000,
+#         batch_size=32,
+#         e_greedy_increment=None,
+#         sess=None
+#     )
+#
+#     for v in tf.get_default_graph().as_graph_def().node:
+#         print(v.name)
+#     pass
 
 
 

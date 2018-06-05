@@ -9,6 +9,7 @@ from __future__ import print_function
 import time
 
 
+
 def run_loop(agents, env, max_frames, max_episodes, screen_size):
     """A run loop to have agents and an environment interact."""
 
@@ -28,11 +29,10 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
             learning_rate=0.001,
             reward_decay=0.9,
             e_greedy=0.9,
-            replace_target_iter=200,
-            memory_size=2000,
+            replace_target_iter=50,
+            memory_size=500,
             batch_size=32,
             e_greedy_increment=None,
-            output_graph=False,
             sess=None
         )    # start tf session, build network, etc
 
@@ -66,7 +66,6 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
 
                 # progress the environment using actions returned from agent
                 timesteps = env.step(actions)
-                print("action - 0: ", actions[0])
                 # store experience replay
                 for a in agents:
                     a.store_transition(obs=obs[0], a=actions[0], obs_=timesteps[0])
