@@ -1,5 +1,5 @@
-import gym
-from gym.wrappers import Monitor
+#import gym
+#from gym.wrappers import Monitor
 import itertools
 import numpy as np
 import os
@@ -15,8 +15,9 @@ from pysc2.lib import actions
 from pysc2.lib import features
 
 _MOVE_SCREEN = actions.FUNCTIONS.Move_screen.id
-_SELECT_ARMY = actions.FUNCTIONS.select_army.id
-_SELECT_ALL = [0]
+_ATTACK_SCREEN = actions.FUnctions.Attack_screen.id
+#_SELECT_ARMY = actions.FUNCTIONS.select_army.id
+#_SELECT_ALL = [0]
 _NOT_QUEUED = [0]
 
 step_mul = 8
@@ -47,21 +48,31 @@ Tasks:
 env = sc2_env.SC2Env(
     map_name="MoveToBeacon",
     step_mul=step_mul,
-    rgb_screen_size=264,
-    rgb_minimap_size=64)
+    rgb_screen_size=84,
+    rgb_minimap_size=84)
 
 """
-only action: Move_screen
-0 = no op 
-1 = move up
-2 = move down
-3 = move left
-4 = move right
+Actions: Move_screen (MS), Attack_screen (AS)
+We use a mapping between each Q network prediction and a fully composed action with complete arguments
+We discretize the screen into a 12 x 12 grid where each grid cell is 7 x 7. Each action maps 
+to either Move_screen or Attack_screen and the center of one of these grid cells. Note: the action 
+is never queued.
+
+0 = 331/Move_screen (3/queued [0]; 0/screen [0, 3])
+1 = 331/Move_screen (3/queued [0]; 0/screen [0, 10])
+...
+23 = 331/Move_screen (3/queued [0]; 0/screen [73, 73])
+24 = 12/Attack_screen (3/queued [0]; 0/screen [0, 3])
+25 = 12/Attack_screen (3/queued [0]; 0/screen [0, 10])
+...
+47 = 12/Attack_screen (3/queued [0]; 0/screen [73, 73])
+
+TODO: Create a mapping between action id and the composed action
 """
 
-VALID_ACTIONS = [0, 1, 2, 3, 4]
+VALID_ACTIONS = list(range(48))
 
-
+''' Don't need StateProcessor; do any processing in PySC2EnvWrapper
 class StateProcessor():
     """
     process a raw starcraft 2 minimap image.
@@ -88,7 +99,7 @@ class StateProcessor():
             processed [84, 84, 1] grayscale state
         """
         return sess.run(self.output, feed_dict={self.input_state: state})
-
+'''
 
 class Estimator():
     """Q-Value Estimator Network"""
@@ -108,7 +119,7 @@ class Estimator():
     def _build_model(self):
         """
         build tf graph
-        3 convolutional layers 1 fully connected layer
+        3 convolutional layers 2 fully connected layer
         We can manipulate the network outself.
         MSE loss
         RMSPropOptimizer from the DQN paper
@@ -117,8 +128,8 @@ class Estimator():
         """
 
         # placeholders
-        # input is 4 rgb frames
-        self.X_pl = tf.placeholder(shape=[None, 84, 84, 4], dtype=tf.uint8, name="X")
+        # input is rgb screen or minimap image
+        self.X_pl = tf.placeholder(shape=[None, 84, 84, 3], dtype=tf.uint8, name="X")
         # target TD values
         self.Y_pl = tf.placeholder(shape=[None], dtype=tf.float32, name="y")
         # Integer ID of action selected
@@ -129,14 +140,15 @@ class Estimator():
 
         # 3 convolutional layers
         # (input, num_output, kernel_size, stride, activation)
-        conv1 = tf.contrib.layers.conv2d(X, 32, 8, 3, activation_fn=tf.nn.relu)
+        conv1 = tf.contrib.layers.conv2d(X, 32, 8, 4, activation_fn=tf.nn.relu)
         conv2 = tf.contrib.layers.conv2d(conv1, 64, 4, 2, activation_fn=tf.nn.relu)
         conv3 = tf.contrib.layers.conv2d(conv2, 64, 3, 1, activation_fn=tf.nn.relu)
 
         # flatten into a fully connected layer
         flattened = tf.contrib.layers.flatten(conv3)
+        # fc1
         fc1 = tf.contrib.layers.fully_connected(flattened, 512)
-        # predict a action
+        # predict a action - fc2
         self.predictions = tf.contrib.layers.fully_connected(fc1, len(VALID_ACTIONS))
 
         # get predictions for chosen action
@@ -168,7 +180,7 @@ class Estimator():
 
         Args:
             sess: tf session
-            s: State inpuf of shape [batch_size, 4, 160, 160, 3]
+            s: State inpuf of shape [batch_size, 84, 84, 3]
 
         Returns:
             Tensor of shape [batch_size, NUM_VALID_ACTIONS] containing estimated action value
@@ -180,7 +192,7 @@ class Estimator():
         update the estimator toward given targets
         Args:
             tf session
-            s: state input of shape [batch_size, 4, 160, 160, 3]
+            s: state input of shape [batch_size, 84, 84, 3]
             a: chosen action of shape [batch_size]
             y: targets of shape [batch_size]
 
@@ -250,7 +262,6 @@ def deep_q_learning(sess,
                     env,
                     q_estimator,
                     target_estimator,
-                    state_processor,
                     num_episodes,
                     experiment_dir,
                     replay_memory_size=500000,
@@ -306,9 +317,9 @@ def deep_q_learning(sess,
     print("Populating replay memory...")
     state = env.reset()
     # make the minimap data the state.
-    state = state[0].observation["rgb_minimap"].astype(np.uint8)
-    state = state_processor.process(sess, state)
-    state = np.stack([state] * 4, axis=2)
+    #state = state[0].observation["rgb_minimap"].astype(np.uint8)
+    #state = state_processor.process(sess, state)
+    #state = np.stack([state] * 4, axis=2)
     for i in range(replay_memory_init_size):
         if i % 1000 == 0:
             print("iteration " + str(i))
@@ -327,9 +338,9 @@ def deep_q_learning(sess,
             # if found goal, start over
             state = env.reset()
             # make the minimap data the state.
-            state = state[0].observation["rgb_minimap"].astype(np.uint8)
-            state = state_processor.process(sess, state)
-            state = np.stack([state] * 4, axis=2)
+            #state = state[0].observation["rgb_minimap"].astype(np.uint8)
+            #state = state_processor.process(sess, state)
+            #state = np.stack([state] * 4, axis=2)
 
         else:
             # if not found goal, update state to next state
@@ -337,8 +348,9 @@ def deep_q_learning(sess,
 
     # record videos
     # ad env monitor wrapper
-    env = Monitor(env, directory=monitor_path, video_callable=lambda count: count % record_video_every == 0,
-                  resume=True)
+    # Does this work for PySC2?
+    #env = Monitor(env, directory=monitor_path, video_callable=lambda count: count % record_video_every == 0,
+    #              resume=True)
 
     for i_episode in range(num_episodes):
         # save the current checkpoint
@@ -348,8 +360,8 @@ def deep_q_learning(sess,
 
         # reset openAI environment
         state = env.reset()
-        state = state_processor.process(sess, state)
-        state = np.stack([state] * 4, axis=2)
+        #state = state_processor.process(sess, state)
+        #state = np.stack([state] * 4, axis=2)
         loss = None
         # main forloop after loading initial state
         for t in itertools.count():
@@ -377,9 +389,9 @@ def deep_q_learning(sess,
             # similar to earlier when loading replay memory with first step
             action_probs = policy(sess, state, epsilon)
             action = np.random.choice(np.arange(len(VALID_ACTIONS)), p=action_probs)
-            next_state, reward, done, _ = env.step(VALID_ACTIONS[action])
-            next_state = state_processor.process(sess, next_state)
-            next_state = np.append(state[:, :, 1:], np.expand_dims(next_state, 2), axis=2)
+            next_state, reward, done = env.step(VALID_ACTIONS[action])
+            #next_state = state_processor.process(sess, next_state)
+            #next_state = np.append(state[:, :, 1:], np.expand_dims(next_state, 2), axis=2)
 
             # if replay memory is full, pop
             if len(replay_memory) == replay_memory_size:
@@ -440,7 +452,7 @@ if __name__ == '__main__':
     q_estimator = Estimator(scope="q", summaries_dir=experiment_dir)
     target_estimator = Estimator(scope="target_q")
     # State processor
-    state_processor = StateProcessor()
+    #state_processor = StateProcessor()
 
     # Run it!
     with tf.Session() as sess:
@@ -449,7 +461,6 @@ if __name__ == '__main__':
                                         env,
                                         q_estimator=q_estimator,
                                         target_estimator=target_estimator,
-                                        state_processor=state_processor,
                                         experiment_dir=experiment_dir,
                                         num_episodes=10000,
                                         replay_memory_size=500000,
