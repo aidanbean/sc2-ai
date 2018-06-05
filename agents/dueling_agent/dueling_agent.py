@@ -34,7 +34,7 @@ from pysc2.lib import features
 from .utils import preprocess_screen, screen_channel, buildmarines_reward
 
 
-class DuelingAgent(object):
+class DQNAgent(object):
 
     def __init__(self):
         # self.reward = 0
@@ -474,7 +474,7 @@ class DuelingAgent(object):
 
 
 if __name__ == '__main__':
-    agent = DuelingAgent()
+    agent = DQNAgent()
     agent.setup(
         obs_spec=1,
         action_spec=1,
