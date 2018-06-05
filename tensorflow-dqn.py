@@ -128,6 +128,8 @@ class Estimator():
 		# get predictions for chosen action 
 		gather_indices = tf.range(batch_size) * tf.shape(self.predictions)[1] + self.actions_pl
 		self.action_predictions = tf.gather(tf.reshape(self.predictions, [-1]), gather_indices)
+		self.action_predictions = tf.Print(self.action_predictions, [self.action_predictions],
+											first_n=5, summarize=10)
 
 		# calculate loss 
 		# mean of all the differences 
