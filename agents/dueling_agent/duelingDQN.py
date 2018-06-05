@@ -60,7 +60,7 @@ class DuelingDQN:
             b2 = tf.get_variable('b2', [1, 1], initializer=b_init, collections=c_names)
             self.V = tf.matmul(l1, w2) + b2
 
-        with tf.variable_scope('Advantage'):a
+        with tf.variable_scope('Advantage'):
             w2 = tf.get_variable('w2', [n_l1, self.output_dims], initializer=w_init, collections=c_names)
             b2 = tf.get_variable('b2', [1, self.output_dims], initializer=b_init, collections=c_names)
             self.A = tf.matmul(l1, w2) + b2

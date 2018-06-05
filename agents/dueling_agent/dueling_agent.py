@@ -274,7 +274,7 @@ class DuelingAgent(object):
 
         # obs.observation.screen_feature is (17, 64, 64)
         screen = np.array(obs.observation.feature_screen, dtype=np.float32)
-        screen_input = np.expand_dims(preprocess_screen(screen), axis=0) # return (bs=1, channel=42, h=64, w=64)
+        screen = np.expand_dims(preprocess_screen(screen), axis=0) # return (bs=1, channel=42, h=64, w=64)
 
         # get available actions
         info = np.zeros([1, self.isize], dtype=np.float32)
@@ -283,7 +283,7 @@ class DuelingAgent(object):
         # run session to obtain spatial action output and non spatial action array
         non_spatial_action, spatial_action = self.sess.run(
             [self.non_spatial_action, self.spatial_action],
-            feed_dict={self.screen: screen_input, self.info: info})
+            feed_dict={self.screen: screen, self.info: info})
 
         # select action and spatial target
         non_spatial_action = non_spatial_action.ravel() # flatten
@@ -340,7 +340,7 @@ class DuelingAgent(object):
 
         # store transition
         # transition = (s, [a, r], s_)
-        transition = (obs, [a, r], obs_)
+        transition = (obs, a, r, obs_)
         self.memory.append(transition)
 
         # remove old memory if full
@@ -359,6 +359,61 @@ class DuelingAgent(object):
         # sample mini-batch
         sample_indices = np.random.choice(self.memory_size, size=self.batch_size)
         batch_memory = deque(list(np.array(self.memory)[sample_indices]))
+
+        # extract s = [], a = [], s' = [], r = []
+        screens = []
+        screens_next = []
+        infos = []
+        infos_next = []
+        rewards = []
+
+        # actions
+        valid_spatial_action = np.zeros([self.batch_size], dtype=np.float32)
+        spatial_action_selected = np.zeros([self.batch_size, self.ssize ** 2], dtype=np.float32)
+        valid_non_spatial_action = np.zeros([self.batch_size, len(actions.FUNCTIONS)], dtype=np.float32)
+        non_spatial_action_selected = np.zeros([self.batch_size, len(actions.FUNCTIONS)], dtype=np.float32)
+
+        for i, [obs, a, r, obs_] in enumerate(batch_memory):
+            # s current state from obs
+            screen = np.array(obs.observation.feature_screen, dtype=np.float32)
+            screen = np.expand_dims(preprocess_screen(screen), axis=0)  # return (bs=1, channel=42, h=64, w=64)
+            info = np.zeros([1, self.isize], dtype=np.float32)
+            info[0, obs.observation['available_actions']] = 1
+            screens.append(screen)
+            infos.append(info)
+
+            # s_ next state from obs_
+            screen_next = np.array(obs_.observation.feature_screen, dtype=np.float32)
+            screen_next = np.expand_dims(preprocess_screen(screen_next), axis=0)  # return (bs=1, channel=42, h=64, w=64)
+            info_next = np.zeros([1, self.isize], dtype=np.float32)
+            info_next[0, obs_.observation['available_actions']] = 1
+
+            # append to s list, s_ list
+            screens.append(screen)
+            infos.append(info)
+            screens_next.append(screen_next)
+            infos_next.append(info_next)
+
+            # get reward r
+            rewards.append(r)
+
+            # get action 'a'
+            act_id = a.function
+            act_args = a.arguments
+
+            valid_actions = obs.observation["available_actions"]
+            valid_non_spatial_action[i, valid_actions] = 1
+            non_spatial_action_selected[i, act_id] = 1
+
+            args = actions.FUNCTIONS[act_id].args
+            for arg, act_arg in zip(args, act_args):
+                if arg.name in ('screen', 'minimap', 'screen2'):
+                    ind = act_arg[1] * self.ssize + act_arg[0]
+                    valid_spatial_action[i] = 1
+                    spatial_action_selected[i, ind] = 1
+
+        # get q_next = Q(s', a': theta) to calculate y
+
 
         pass
 
