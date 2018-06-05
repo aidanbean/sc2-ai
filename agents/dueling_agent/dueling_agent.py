@@ -412,9 +412,27 @@ class DuelingAgent(object):
                     valid_spatial_action[i] = 1
                     spatial_action_selected[i, ind] = 1
 
+        screens = np.concatenate(screens, axis=0)
+        infos = np.concatenate(infos, axis=0)
+        screens_next = np.concatenate(screens_next, axis=0)
+        infos_next = np.concatenate(infos_next, axis=0)
+        rewards = np.concatenate(rewards, axis=0)
+
         # get q_next = Q(s', a': theta) to calculate y
+        q_next = self.sess.run(self.q_next, feed_dict={self.screen: screens_next, self.info: infos_next})
+        # q_eval = self.sess.run(self.q_eval, feed_dict={self.screen: screens, self.info: infos})
+        q_target = rewards + self.gamma * q_next
 
-
+        # train
+        feed = {self.screen: screens,
+                self.info: infos,
+                self.q_target: q_target,
+                self.valid_spatial_action: valid_spatial_action,
+                self.spatial_action_selected: spatial_action_selected,
+                self.valid_non_spatial_action: valid_non_spatial_action,
+                self.non_spatial_action_selected: non_spatial_action_selected
+                }
+        _ = self.sess.run(self.train_op, feed_dict=feed)
         pass
 
 
