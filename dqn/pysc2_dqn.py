@@ -74,7 +74,7 @@ is never queued.
 47 = 12/Attack_screen (3/queued [0]; 0/screen [73, 73])
 """
 
-VALID_ACTIONS = list(range(48))
+VALID_ACTIONS = [i for i in range(48)]
 
 ''' Don't need StateProcessor; do any processing in PySC2EnvWrapper
 class StateProcessor():
