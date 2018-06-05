@@ -12,12 +12,13 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as layers
+from collections import deque
 
 from pysc2.agents import base_agent
 from pysc2.lib import actions
 from pysc2.lib import features
 
-from .utils import preprocess_screen, screen_channel
+from utils import preprocess_screen, screen_channel, buildmarines_reward
 
 _PLAYER_RELATIVE = features.PlayerRelative.ALLY
 
@@ -68,8 +69,8 @@ class DuelingAgent(object):
         self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
 
         self.learn_step_counter = 0
-        self.memory = np.zeros((self.memory_size, self.ssize*2+2))
-
+        # self.memory = np.zeros((self.memory_size, self.ssize*2+2))
+        self.memory = deque()
         # build model
         self.build_model()
 
@@ -162,34 +163,36 @@ class DuelingAgent(object):
             bias_initializer=tf.constant_initializer(0.1),
             name='feat_fc')
         non_spatial_action = tf.layers.dense(inputs=feat_fc,
-                                             units=len(actions.FUNCTIONS),
+                                             units=self.isize,
                                              activation=tf.nn.softmax,
                                              name='non_spatial_action')
 
         # compute q value using dueling net
-        with tf.variable_scope('Value'):
-            self.V = tf.layers.dense(
-                inputs=feat_fc,
-                units=1,
-                activation=None,
-                bias_initializer=tf.constant_initializer(0.1),
-                name='V')
-        with tf.variable_scope('Advantage'):
-            self.A = tf.layers.dense(
-                inputs=feat_fc,
-                units=len(actions.FUNCTIONS),
-                activation=None,
-                bias_initializer=tf.constant_initializer(0.1),
-                name='A')
-        with tf.variable_scope('Q'):
-            q = self.V + (self.A - tf.reduce_mean(self.A, axis=1, keep_dims=True))
-        # q = tf.reshape(
-        #     tensor=tf.layers.dense(
+        # with tf.variable_scope('Value'):
+        #     self.V = tf.layers.dense(
         #         inputs=feat_fc,
         #         units=1,
         #         activation=None,
-        #         name='q'),
-        #     shape=[-1]) # a shape of [-1] flattens into 1-D
+        #         bias_initializer=tf.constant_initializer(0.1),
+        #         name='V')
+        # with tf.variable_scope('Advantage'):
+        #     self.A = tf.layers.dense(
+        #         inputs=feat_fc,
+        #         units=len(actions.FUNCTIONS),
+        #         activation=None,
+        #         bias_initializer=tf.constant_initializer(0.1),
+        #         name='A')
+        # with tf.variable_scope('Q'):
+        #     q = self.V + (self.A - tf.reduce_mean(self.A, axis=1, keep_dims=True))
+
+        # original A3C q value calculation
+        q = tf.reshape(
+            tensor=tf.layers.dense(
+                inputs=feat_fc,
+                units=1,
+                activation=None,
+                name='q'),
+            shape=[-1]) # a shape of [-1] flattens into 1-D
 
         return spatial_action, non_spatial_action, q
 
@@ -209,32 +212,46 @@ class DuelingAgent(object):
             self.spatial_action, self.non_spatial_action, self.q_eval = self.build_network()
 
         # target value
-        # self.valid_spatial_action = tf.placeholder(tf.float32, [None], name='valid_spatial_action')
-        # self.spatial_action_selected = tf.placeholder(tf.float32, [None, self.ssize ** 2], name='spatial_action_selected')
-        # self.valid_non_spatial_action = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)],name= 'valid_non_spatial_action')
-        # self.non_spatial_action_selected = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='non_spatial_action_selected')
-        self.q_target = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='q_target')
+        self.valid_spatial_action = tf.placeholder(tf.float32, [None], name='valid_spatial_action')
+        self.spatial_action_selected = tf.placeholder(tf.float32, [None, self.ssize ** 2], name='spatial_action_selected')
+        self.valid_non_spatial_action = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)],name= 'valid_non_spatial_action')
+        self.non_spatial_action_selected = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='non_spatial_action_selected')
+        self.q_target = tf.placeholder(tf.float32, [None], name='q_target')
 
-        # # action log probability
-        # spatial_action_prob = tf.reduce_sum(self.spatial_action * self.spatial_action_selected, axis=1)
-        # spatial_action_log_prob = tf.log(tf.clip_by_value(spatial_action_prob, 1e-10, 1.))
-        #
-        # non_spatial_action_prob = tf.reduce_sum(self.non_spatial_action * self.non_spatial_action_selected, axis=1)
-        # valid_non_spatial_action_prob = tf.reduce_sum(self.non_spatial_action * self.valid_non_spatial_action, axis=1)
-        # valid_non_spatial_action_prob = tf.clip_by_value(valid_non_spatial_action_prob, 1e-10, 1.)
-        # non_spatial_action_prob = non_spatial_action_prob / valid_non_spatial_action_prob
-        # non_spatial_action_log_prob = tf.log(tf.clip_by_value(non_spatial_action_prob, 1e-10, 1.))
-        #
-        # # compute loss
-        # action_log_prob = self.valid_spatial_action * spatial_action_log_prob + non_spatial_action_log_prob
-        # advantage = tf.stop_gradient(self.q_target - self.q_eval)
-        # policy_loss = - tf.reduce_mean(action_log_prob * advantage)
-        # value_loss = - tf.reduce_mean(self.q_eval * advantage)
+        # original A3C loss calculation
+        # action log probability
+        spatial_action_prob = tf.reduce_sum(self.spatial_action * self.spatial_action_selected, axis=1)
+        spatial_action_log_prob = tf.log(tf.clip_by_value(spatial_action_prob, 1e-10, 1.))
 
-        with tf.variable_scope('loss'):
-            self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
-        with tf.variable_scope('train'):
-            self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
+        non_spatial_action_prob = tf.reduce_sum(self.non_spatial_action * self.non_spatial_action_selected, axis=1)
+        valid_non_spatial_action_prob = tf.reduce_sum(self.non_spatial_action * self.valid_non_spatial_action, axis=1)
+        valid_non_spatial_action_prob = tf.clip_by_value(valid_non_spatial_action_prob, 1e-10, 1.)
+        non_spatial_action_prob = non_spatial_action_prob / valid_non_spatial_action_prob
+        non_spatial_action_log_prob = tf.log(tf.clip_by_value(non_spatial_action_prob, 1e-10, 1.))
+
+        # compute loss
+        action_log_prob = self.valid_spatial_action * spatial_action_log_prob + non_spatial_action_log_prob
+        advantage = tf.stop_gradient(self.q_target - self.q_eval)
+        policy_loss = - tf.reduce_mean(action_log_prob * advantage)
+        value_loss = - tf.reduce_mean(self.q_eval * advantage)
+
+        loss = policy_loss + value_loss
+
+        # Build the optimizer
+        opt = tf.train.RMSPropOptimizer(learning_rate=self.lr, decay=0.99, epsilon=1e-10)
+        grads = opt.compute_gradients(loss)
+        cliped_grad = []
+        for grad, var in grads:
+            grad = tf.clip_by_norm(grad, 10.0)
+            cliped_grad.append([grad, var])
+        self.train_op = opt.apply_gradients(cliped_grad)
+
+        # # dueling net optimizer method
+        # self.q_target = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='q_target')
+        # with tf.variable_scope('loss'):
+        #     self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
+        # with tf.variable_scope('train'):
+        #     self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
 
         # ---------------------------target net for spatial, non-spatial---------------------------
 
@@ -258,7 +275,6 @@ class DuelingAgent(object):
         # obs.observation.screen_feature is (17, 64, 64)
         screen = np.array(obs.observation.feature_screen, dtype=np.float32)
         screen_input = np.expand_dims(preprocess_screen(screen), axis=0) # return (bs=1, channel=42, h=64, w=64)
-        print("reward", obs.reward)
 
         # get available actions
         info = np.zeros([1, self.isize], dtype=np.float32)
@@ -302,12 +318,48 @@ class DuelingAgent(object):
         return actions.FunctionCall(act_id, act_args)
 
     def store_transition(self, obs, a, obs_):
-        """store the transition in experience replay"""
+        """
+        store the transition (s, a, r, s') in experience replay
+        define reward function
+        get s=screen, s'=screen', and action, put them in memory
+        currently, a in non-spatial
+        1. break observation into screen state and reward
+        reward function: # marines + # minerial + # depot + # barracks
+        """
 
+        # # get s
+        # screen = np.array(obs.observation.feature_screen, dtype=np.float32)
+        # s = np.expand_dims(preprocess_screen(screen), axis=0) # return (bs=1, channel=42, h=64, w=64)
+        #
+        # # get s_
+        # screen = np.array(obs_.observation.feature_screen, dtype=np.float32)
+        # s_ = np.expand_dims(preprocess_screen(screen), axis=0) # return (bs=1, channel=42, h=64, w=64)
+
+        # get r for BuildMarines
+        r = buildmarines_reward(obs_)
+
+        # store transition
+        # transition = (s, [a, r], s_)
+        transition = (obs, [a, r], obs_)
+        self.memory.append(transition)
+
+        # remove old memory if full
+        if len(self.memory) > self.memory_size:
+            self.memory.popleft()
         pass
 
     def learn(self):
         """when certain number of replay size reach, learn from minibatch replay"""
+
+        # replace target net parameters
+        if self.learn_step_counter % self.replace_target_iter == 0:
+            self.sess.run(self.replace_target_op)
+            print('\ntarget_params_replaced\n')
+
+        # sample mini-batch
+        sample_indices = np.random.choice(self.memory_size, size=self.batch_size)
+        batch_memory = deque(list(np.array(self.memory)[sample_indices]))
+
         pass
 
 

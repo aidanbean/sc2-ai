@@ -42,3 +42,23 @@ def screen_channel():
         else:
             c += features.SCREEN_FEATURES[i].scale
     return c
+
+
+def buildmarines_reward(obs):
+    # unit id, refer to lin/units.py
+    _TERRAN_SUPPLY_DEPOT = 19
+    _TERRAN_BARRACKS = 21
+    _TERRAN_MARINE = 48
+
+    reward_items = [_TERRAN_SUPPLY_DEPOT, _TERRAN_MARINE, _TERRAN_BARRACKS]
+    intrapolation = [0.1, 1, 0.1]
+    total_reward = 0.0
+
+    for unit, rate in zip(reward_items, intrapolation):
+        unit_type = obs.observation["feature_screen"][_SCREEN_UNIT_TYPE]
+        unit_y, unit_x = (unit_type == unit).nonzero()
+        num_unit = len(np.unique(unit_y))
+        total_reward += num_unit * rate
+
+    return total_reward
+

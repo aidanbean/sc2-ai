@@ -5,8 +5,8 @@ this agent make decision using Q Learning, again, this is for learning / warm up
 running this agent:
 python -m pysc2.bin.agent \
 --map BuildMarines \
---agent smart_agent.SmartAgent \
---agent_race T \
+--agent smart_Q_table_agent.SmartAgent \
+--agent_race terran \
 --max_agent_steps 0 \
 --norender
 
@@ -23,6 +23,7 @@ import math
 import numpy as np
 import pandas as pd
 import time
+
 
 from pysc2.agents import base_agent
 from pysc2.lib import actions
@@ -146,36 +147,40 @@ class SmartAgent(base_agent.BaseAgent):
         return [x + x_distance, y + y_distance]
 
     def get_num_marines(self, obs):
-        unit_type = obs.observation['screen'][_UNIT_TYPE]
+        unit_type = obs.observation['feature_screen'][_UNIT_TYPE]
         unit_y, unit_x = (unit_type == _TERRAN_MARINE).nonzero()
-        num_unit = int(len(unit_y) / 6)
+        num_unit = int(len(np.unique(unit_y)))
+        # print(num_unit)
         return num_unit
         pass
 
     def get_num_depots(self, obs):
-        unit_type = obs.observation['screen'][_UNIT_TYPE]
+        unit_type = obs.observation['feature_screen'][_UNIT_TYPE]
         unit_y, unit_x = (unit_type == _TERRAN_SUPPLY_DEPOT).nonzero()
-        num_unit = int(len(unit_y) / 6)
+        num_unit = int(len(np.unique(unit_y)))
         return num_unit
         pass
 
     def get_num_barrack(self, obs):
-        unit_type = obs.observation['screen'][_UNIT_TYPE]
+        unit_type = obs.observation['feature_screen'][_UNIT_TYPE]
         unit_y, unit_x = (unit_type == _TERRAN_BARRACKS).nonzero()
-        num_unit = int(len(unit_y) / 6)
+
+        num_unit = int(len(np.unique(unit_y)))
         return num_unit
         pass
 
     def step(self, obs):
         super(SmartAgent, self).step(obs)
 
+        print(obs.observation.player.army_count)
+
         random.seed(time.time())
 
-        player_y, player_x = (obs.observation['minimap'][_PLAYER_RELATIVE] == _PLAYER_SELF).nonzero()
+        player_y, player_x = (obs.observation['feature_minimap'][_PLAYER_RELATIVE] == _PLAYER_SELF).nonzero()
         self.base_top_left = 1 if player_y.any() and player_y.mean() <= 31 else 0
 
         # get depot count and barrack count as state features
-        unit_type = obs.observation['screen'][_UNIT_TYPE]
+        unit_type = obs.observation['feature_screen'][_UNIT_TYPE]
         depot_y, depot_x = (unit_type == _TERRAN_SUPPLY_DEPOT).nonzero()
         supply_depot_count = 1 if depot_y.any() else 0
 
@@ -234,7 +239,7 @@ class SmartAgent(base_agent.BaseAgent):
             return actions.FunctionCall(_NO_OP, [])
 
         elif smart_action == ACTION_SELECT_SCV:
-            unit_type = obs.observation['screen'][_UNIT_TYPE]
+            unit_type = obs.observation['feature_screen'][_UNIT_TYPE]
             unit_y, unit_x = (unit_type == _TERRAN_SCV).nonzero()
 
             if unit_y.any():
@@ -245,7 +250,7 @@ class SmartAgent(base_agent.BaseAgent):
 
         elif smart_action == ACTION_BUILD_SUPPLY_DEPOT:
             if _BUILD_SUPPLY_DEPOT in obs.observation["available_actions"]:
-                unit_type = obs.observation["screen"][_UNIT_TYPE]
+                unit_type = obs.observation['feature_screen'][_UNIT_TYPE]
                 unit_y, unit_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
 
                 if unit_y.any():
@@ -254,7 +259,7 @@ class SmartAgent(base_agent.BaseAgent):
 
         elif smart_action == ACTION_BUILD_BARRACKS:
             if _BUILD_BARRACKS in obs.observation['available_actions']:
-                unit_type = obs.observation['screen'][_UNIT_TYPE]
+                unit_type = obs.observation['feature_screen'][_UNIT_TYPE]
                 unit_y, unit_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
 
                 if unit_y.any():
@@ -263,7 +268,7 @@ class SmartAgent(base_agent.BaseAgent):
             pass
 
         elif smart_action == ACTION_SELECT_BARRACKS:
-            unit_type = obs.observation['screen'][_UNIT_TYPE]
+            unit_type = obs.observation['feature_screen'][_UNIT_TYPE]
             unit_y, unit_x = (unit_type == _TERRAN_BARRACKS).nonzero()
             if unit_y.any():
                 target = [int(unit_x.mean()), int(unit_y.mean())]

@@ -80,7 +80,7 @@ class SimpleAgent(base_agent.BaseAgent):
         # locate base
         if self.base_top_left is None:
             # return a list of coordinates of non zero units
-            player_x, player_y = (obs.observation["minimap"][_PLAYER_RELATIVE] == _PLAYER_SELF).nonzero()
+            player_x, player_y = (obs.observation["feature_minimap"][_PLAYER_RELATIVE] == _PLAYER_SELF).nonzero()
 
             # if the mean of y coordinates for all units is less than 31, base_top_left is assigned True
             self.base_top_left = player_y.mean() <= 31
@@ -101,7 +101,7 @@ class SimpleAgent(base_agent.BaseAgent):
 
             # if worker selected, build depot
             elif _BUILD_SUPPLYDEPOT in obs.observation["available_actions"]:
-                unit_type = obs.observation["screen"][_UNIT_TYPE]
+                unit_type = obs.observation["feature_screen"][_UNIT_TYPE]
                 unit_y, unit_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
 
                 # command center has multiple x, y coordinates b/c frames
@@ -113,7 +113,7 @@ class SimpleAgent(base_agent.BaseAgent):
         # if build barrack avaiable, select a location and build
         elif not self.barrack_built:
             if _BUILD_BARRACKS in obs.observation["available_actions"]:
-                unit_type = obs.observation["screen"][_UNIT_TYPE]
+                unit_type = obs.observation["feature_screen"][_UNIT_TYPE]
                 unit_y, unit_x = (unit_type == _TERRAN_COMMANDCENTER).nonzero()
 
                 target  = self.transformLocation(int(unit_x.mean()), 20, int(unit_y.mean()), 0)
@@ -123,7 +123,7 @@ class SimpleAgent(base_agent.BaseAgent):
         # control barrack and rally barrack
         # elif not self.barracks_rallied:
         elif not self.barracks_selected:
-            unit_type = obs.observation["screen"][_UNIT_TYPE]
+            unit_type = obs.observation["feature_screen"][_UNIT_TYPE]
             unit_y, unit_x = (unit_type == _TERRAN_BARRACKS).nonzero()
 
             # if there is a barrack, pick a location in screen

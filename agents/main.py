@@ -50,7 +50,7 @@ flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 
 flags.DEFINE_string("agent", "dueling_agent.dueling_agent.DuelingAgent",
                     "Which agent to run, as a python path to an Agent class.")
-flags.DEFINE_enum("agent_race", "random", sc2_env.Race._member_names_,  # pylint: disable=protected-access
+flags.DEFINE_enum("agent_race", "terran", sc2_env.Race._member_names_,  # pylint: disable=protected-access
                   "Agent 1's race.")
 
 flags.DEFINE_string("agent2", "Bot", "Second agent, either Bot or agent class.")
@@ -65,7 +65,7 @@ flags.DEFINE_integer("parallel", 1, "How many instances to run in parallel.")
 
 flags.DEFINE_bool("save_replay", False, "Whether to save a replay at the end.")
 
-flags.DEFINE_string("map", None, "Name of a map to use.")
+flags.DEFINE_string("map", "BuildMarines", "Name of a map to use.")
 flags.mark_flag_as_required("map")
 
 

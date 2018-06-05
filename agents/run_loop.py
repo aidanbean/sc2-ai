@@ -66,7 +66,7 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
 
                 # progress the environment using actions returned from agent
                 timesteps = env.step(actions)
-
+                print("action - 0: ", actions[0])
                 # store experience replay
                 for a in agents:
                     a.store_transition(obs=obs[0], a=actions[0], obs_=timesteps[0])
