@@ -21,7 +21,11 @@ Both DQN agents are capable of running the full game as they are extended (with 
 
 ## Version:
 The agents are bug-free under following environment configuration. 
- `python`: 2.7 or 3.*
+
+`python`: 2.7 or 3.*
+
 `pysc2`: after 5/31/2018
+
 `tensorflow`: latest version on gpu or cpu
+
 `StarCraft II`: 4.1.2
