@@ -1,1 +1,0 @@
-Tensor("add_1:0", shape=(), dtype=float32)

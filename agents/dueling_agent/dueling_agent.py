@@ -35,8 +35,8 @@ from pysc2.lib import actions
 from pysc2.lib import features
 
 from .utils import preprocess_screen, screen_channel, buildmarines_reward
-rewards_file = open("rewards.txt", "w")
-loss_file = open("loss.txt", "w")
+rewards_file = open("rewards.txt", "w+")
+loss_file = open("loss.txt", "w+")
 
 
 class DuelingAgent(object):
@@ -113,7 +113,7 @@ class DuelingAgent(object):
         else:
             self.sess = sess
 
-        self.summary_writer = tf.summary.FileWriter("../logs/", self.sess.graph)
+        self.summary_writer = tf.summary.FileWriter("./logs/", self.sess.graph)
         print("session initialized")
         pass
 
