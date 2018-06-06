@@ -2,7 +2,9 @@
 
 ## Running the agent:
 Under folder `agents/`
+
 Dueling DQN agent: `﻿python -m main --agent=dueling_agent.dueling_agent.DuelingAgent`
+
 DQN agent: `﻿python -m main --agent=dqn_agent.dqn_agent.DQNAgent`
 
 
