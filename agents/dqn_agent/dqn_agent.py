@@ -34,7 +34,7 @@ from pysc2.lib import features
 from .utils import preprocess_screen, screen_channel, buildmarines_reward
 
 
-class DuelingAgent(object):
+class DQNAgent(object):
 
     def __init__(self):
         # self.reward = 0
@@ -338,12 +338,6 @@ class DuelingAgent(object):
         # self.steps += 1
         # self.reward += obs.reward
 
-        if act_id == 452:
-            #   TODO: debug this
-            _NO_OP = actions.FUNCTIONS.no_op.id
-            #   smart screen action return error when minimap value is below 28
-            return actions.FunctionCall(_NO_OP, [])
-
         # print("return action with id: {} and args {} ".format(act_id, act_args))
         return actions.FunctionCall(act_id, act_args)
 
@@ -474,7 +468,7 @@ class DuelingAgent(object):
 
 
 if __name__ == '__main__':
-    agent = DuelingAgent()
+    agent = DQNAgent()
     agent.setup(
         obs_spec=1,
         action_spec=1,

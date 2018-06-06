@@ -36,7 +36,7 @@ rewards_file = open("rewards.txt", "w")
 loss_file = open("loss.txt", "w")
 
 
-class DQNAgent(object):
+class DuelingAgent(object):
 
     def __init__(self):
         # self.reward = 0
@@ -353,12 +353,6 @@ class DQNAgent(object):
         # self.steps += 1
         # self.reward += obs.reward
 
-        # if act_id == 452:
-        #     #   TODO: debug this
-        #     _NO_OP = actions.FUNCTIONS.no_op.id
-        #     #   smart screen action return error when minimap value is below 28
-        #     return actions.FunctionCall(_NO_OP, [])
-
         # print("return action with id: {} and args {} ".format(act_id, act_args))
         return actions.FunctionCall(act_id, act_args)
 
@@ -405,7 +399,7 @@ class DQNAgent(object):
         # sample mini-batch
         sample_indices = np.random.choice(len(self.memory), size=self.batch_size)
         batch_memory = deque(list(np.array(self.memory)[sample_indices]))
-        print("selecting minibatch of size: {}..." .format(len(batch_memory)))
+        print("\nselecting minibatch of size: {}..." .format(len(batch_memory)))
 
         # extract s = [], a = [], s' = [], r = []
         screens = []
@@ -491,7 +485,7 @@ class DQNAgent(object):
 
 
 if __name__ == '__main__':
-    agent = DQNAgent()
+    agent = DuelingAgent()
     agent.setup(
         obs_spec=1,
         action_spec=1,
