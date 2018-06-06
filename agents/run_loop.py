@@ -32,6 +32,8 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
             replace_target_iter=50,
             memory_size=1000,
             batch_size=32,
+            drop_out=0.1,
+            apply_drop_out=True,
             e_greedy_increment=0.01,
             sess=None
         )    # start tf session, build network, etc

@@ -61,6 +61,8 @@ class DuelingAgent(object):
             replace_target_iter=200,
             memory_size=500,
             batch_size=32,
+            drop_out=0.2,
+            apply_drop_out=False,
             e_greedy_increment=None,
             sess=None
     ):
@@ -82,6 +84,8 @@ class DuelingAgent(object):
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
         self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        self.drop_out = drop_out
+        self.apply_drop_out = apply_drop_out
 
         self.learn_step_counter = 0
         # self.memory = np.zeros((self.memory_size, self.ssize*2+2))
@@ -180,6 +184,13 @@ class DuelingAgent(object):
             activation=tf.nn.relu,
             bias_initializer=tf.constant_initializer(0.1),
             name='feat_fc')
+
+        # define non spatial dropout
+        if self.apply_drop_out:
+            feat_fc = tf.layers.dropout(
+                inputs=feat_fc,
+                rate=self.drop_out
+            )
 
         # non_spatial_action = tf.layers.dense(inputs=feat_fc,
         #                                      units=self.isize,
@@ -380,7 +391,6 @@ class DuelingAgent(object):
 
         # get r for BuildMarines
         r = buildmarines_reward(obs_)
-        print("reward received: {}".format(r))
 
         # store transition
         # transition = (s, [a, r], s_)

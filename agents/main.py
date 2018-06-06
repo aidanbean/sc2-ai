@@ -29,9 +29,9 @@ from run_loop import run_loop
 
 FLAGS = flags.FLAGS
 flags.DEFINE_bool("render", True, "Whether to render with pygame.")
-flags.DEFINE_integer("feature_screen_size", 64,
+flags.DEFINE_integer("feature_screen_size", 84,
                      "Resolution for screen feature layers.")
-flags.DEFINE_integer("feature_minimap_size", 64,
+flags.DEFINE_integer("feature_minimap_size", 84,
                      "Resolution for minimap feature layers.")
 flags.DEFINE_integer("rgb_screen_size", None,
                      "Resolution for rendered screen.")

@@ -56,6 +56,8 @@ class DQNAgent(object):
             replace_target_iter=200,
             memory_size=500,
             batch_size=32,
+            drop_out=0.2,
+            apply_drop_out=False,
             e_greedy_increment=None,
             sess=None
     ):
@@ -77,6 +79,8 @@ class DQNAgent(object):
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
         self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        self.drop_out = drop_out
+        self.apply_drop_out = apply_drop_out
 
         self.learn_step_counter = 0
         # self.memory = np.zeros((self.memory_size, self.ssize*2+2))
@@ -119,13 +123,15 @@ class DQNAgent(object):
         traditional input dims:  Batch  size x  Height  x  Width  x  Channels
         tradition weight: Height  x  Width  x  Input   Channels  x  Output   Channels
         output: spatial action output, non-spatial action output
-
-
         """
 
         print("building network...")
-        # Extract features
 
+        # # define keep prob
+        # if not hasattr(self, "keep_prob"):
+        #     self.keep_prob = tf.constant(1 - self.drop_out)
+
+        # Extract features
         sconv1 = tf.layers.conv2d(
             inputs=tf.transpose(a=self.screen, perm=[0, 2, 3, 1]),
             filters=16,
@@ -137,7 +143,8 @@ class DQNAgent(object):
             name='sconv1'   # 1st conv2d feature layer
         )
 
-        # pooling can be inserted here
+        # pooling: perhaps no pooling because the agent need to recoginze units
+        # and the current pixel size is too smart, it will be very easy to loss information
 
         sconv2 = tf.layers.conv2d(
             inputs=sconv1,
@@ -176,6 +183,14 @@ class DQNAgent(object):
             activation=tf.nn.relu,
             bias_initializer=tf.constant_initializer(0.1),
             name='feat_fc')
+
+        # define non spatial dropout
+        if self.apply_drop_out:
+            feat_fc = tf.layers.dropout(
+                inputs=feat_fc,
+                rate=self.drop_out
+            )
+
         non_spatial_action = tf.layers.dense(inputs=feat_fc,
                                              units=self.isize,
                                              activation=tf.nn.softmax,
@@ -199,7 +214,7 @@ class DQNAgent(object):
         # with tf.variable_scope('Q'):
         #     q = self.V + (self.A - tf.reduce_mean(self.A, axis=1, keep_dims=True))
 
-        # original A3C q value calculation
+        # original A3C q value calculation, applied dropout to feat_fc
         q = tf.reshape(
             tensor=tf.layers.dense(
                 inputs=feat_fc,
