@@ -36,7 +36,7 @@ rewards_file = open("rewards.txt", "w")
 loss_file = open("loss.txt", "w")
 
 
-class DuelingAgent(object):
+class DQNAgent(object):
 
     def __init__(self):
         # self.reward = 0
@@ -491,7 +491,7 @@ class DuelingAgent(object):
 
 
 if __name__ == '__main__':
-    agent = DuelingAgent()
+    agent = DQNAgent()
     agent.setup(
         obs_spec=1,
         action_spec=1,

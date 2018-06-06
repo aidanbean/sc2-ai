@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import, division, print_function
 import numpy as np
-import math
+import tensorflow as tf
 from pysc2.lib import features
 
 _SCREEN_PLAYER_ID = features.SCREEN_FEATURES.player_id.index # just the position of unit-type in screen_feature class
@@ -20,7 +20,7 @@ def preprocess_screen(screen):
         if i == _SCREEN_PLAYER_ID or i == _SCREEN_UNIT_TYPE: # player id or unit type has large categories
             layers.append(screen[i:i+1] / features.SCREEN_FEATURES[i].scale)
         elif features.SCREEN_FEATURES[i].type == features.FeatureType.SCALAR:
-            layers.append(np.log(screen[i:i+1])) # take log for scule data
+            layers.append(np.log(screen[i:i+1] + np.finfo(np.float32).eps)) # take log for scule data
         else:
             # create a scale size x screen size x screen size multi-dimension matrix of 0s
             layer = np.zeros([features.SCREEN_FEATURES[i].scale, screen.shape[1], screen.shape[2]], dtype=np.float32)
@@ -29,4 +29,36 @@ def preprocess_screen(screen):
                 indy, indx = (screen[i] == j).nonzero() # get coor of all points whose value = j in feature layer i
                 layer[j, indy, indx] = 1 # make all these point equal to value 1
             layers.append(layer)
-    return np.concatenate(layers, axis=0)
+    return np.concatenate(layers, axis=0)   # size = (42, 64, 64)
+
+
+def screen_channel():
+    c = 0
+    for i in range(len(features.SCREEN_FEATURES)):
+        if i == _SCREEN_PLAYER_ID or i == _SCREEN_UNIT_TYPE:
+            c += 1
+        elif features.SCREEN_FEATURES[i].type == features.FeatureType.SCALAR:
+            c += 1
+        else:
+            c += features.SCREEN_FEATURES[i].scale
+    return c
+
+
+def buildmarines_reward(obs):
+    # unit id, refer to lin/units.py
+    _TERRAN_SUPPLY_DEPOT = 19
+    _TERRAN_BARRACKS = 21
+    _TERRAN_MARINE = 48
+
+    reward_items = [_TERRAN_SUPPLY_DEPOT, _TERRAN_MARINE, _TERRAN_BARRACKS]
+    intrapolation = [0.1, 1, 0.1]
+    total_reward = 0.0
+
+    for unit, rate in zip(reward_items, intrapolation):
+        unit_type = obs.observation["feature_screen"][_SCREEN_UNIT_TYPE]
+        unit_y, unit_x = (unit_type == unit).nonzero()
+        num_unit = len(np.unique(unit_y))
+        total_reward += num_unit * rate
+
+    return total_reward
+
