@@ -5,6 +5,9 @@
 introduction: this agent uses dueling deep q network
 running the agent: python -m main
 
+*note: this agent is for buildMarines only, define your own reward function
+if you want an agent with different objective
+
 reference:
     paper:
         deepmind: https://arxiv.org/abs/1708.04782
@@ -177,28 +180,30 @@ class DuelingAgent(object):
             activation=tf.nn.relu,
             bias_initializer=tf.constant_initializer(0.1),
             name='feat_fc')
-        non_spatial_action = tf.layers.dense(inputs=feat_fc,
-                                             units=self.isize,
-                                             activation=tf.nn.softmax,
-                                             name='non_spatial_action')
 
-        # compute q value using dueling net
-        # with tf.variable_scope('Value'):
-        #     self.V = tf.layers.dense(
-        #         inputs=feat_fc,
-        #         units=1,
-        #         activation=None,
-        #         bias_initializer=tf.constant_initializer(0.1),
-        #         name='V')
-        # with tf.variable_scope('Advantage'):
-        #     self.A = tf.layers.dense(
-        #         inputs=feat_fc,
-        #         units=len(actions.FUNCTIONS),
-        #         activation=None,
-        #         bias_initializer=tf.constant_initializer(0.1),
-        #         name='A')
-        # with tf.variable_scope('Q'):
-        #     q = self.V + (self.A - tf.reduce_mean(self.A, axis=1, keep_dims=True))
+        # non_spatial_action = tf.layers.dense(inputs=feat_fc,
+        #                                      units=self.isize,
+        #                                      activation=tf.nn.softmax,
+        #                                      name='non_spatial_action')
+
+        # compute q value of non-spatial action using dueling net
+
+        with tf.variable_scope('Value_non_spatial_action'):
+            print("initialize value layer for non spatial action ...")
+            self.value_non_spatial_action = tf.layers.dense(inputs=feat_fc,
+                                                 units=1,
+                                                 activation=tf.nn.softmax,
+                                                 name='Value_non_spatial_action')
+        with tf.variable_scope('Advantage_non_spatial_action'):
+            print("initialize advantage layer for non spatial action ...")
+            self.advantage_non_spatial_action = tf.layers.dense(inputs=feat_fc,
+                                                 units=self.isize,
+                                                 activation=tf.nn.softmax,
+                                                 name='Advantage_non_spatial_action')
+        with tf.variable_scope('non_spatial_action'):
+            non_spatial_action = self.value_non_spatial_action + \
+                                 (self.advantage_non_spatial_action -
+                                  tf.reduce_mean(self.advantage_non_spatial_action, axis=1, keep_dims=True))
 
         # original A3C q value calculation
         q = tf.reshape(
@@ -218,7 +223,6 @@ class DuelingAgent(object):
         define evaluation net, target net
         define optimizer for evaluation net
         """
-
 
         print("building model...")
         # ---------------------------evaluation net for spatial, non-spatial---------------------------
@@ -376,6 +380,7 @@ class DuelingAgent(object):
 
         # get r for BuildMarines
         r = buildmarines_reward(obs_)
+        print("reward received: {}".format(r))
 
         # store transition
         # transition = (s, [a, r], s_)

@@ -5,7 +5,7 @@ paper.
 
 ### configuration: 
 - for configuration of layers, please refer to https://arxiv.org/abs/1708.04782
-- the only difference is: 1. we use gradient clipping to gradient explosion. 2.
+- the only difference is: 1. we use gradient clipping for gradient explosion. 2.
 we seperately get Q_target = y for target network, 
  and Q_evaluation from evaluation network. And update parameters of 
  target network from the evaluation network after certain learning 
