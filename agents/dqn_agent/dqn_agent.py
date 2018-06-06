@@ -66,6 +66,17 @@ class DQNAgent(object):
         2. set up tf session, network structure with input args,
         experience replay storage and optimizer for training
         """
+        print("start setting up DQN agent...")
+        print("configuration: ")
+        print("screen size: {}".format(screen_size))
+        print("learning rate: {}".format(learning_rate))
+        print("reward decay: {}".format(reward_decay))
+        print("replace target net after {} iterations".format(replace_target_iter))
+        print("memory size: {}".format(memory_size))
+        print("batch size: {}".format(batch_size))
+        print("drop out rate: {}".format(drop_out))
+        print("apply drop out ? {}".format(apply_drop_out))
+
         self.obs_spec = obs_spec
         self.action_spec = action_spec
 
