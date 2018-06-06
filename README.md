@@ -16,4 +16,4 @@ Under file `agents/run_loop.py`
 
 ## Breif Description:
 
-Both DQN agents are capable of running the full game as they are implemented with network structure from DeepMind's paper. Yet, the current reward function defined in `agents/*_agent/utils.py` is only for minigame `BuildMarines`. If you want the agent to perform better in the full game or other minig-game, please feel free to define new reward functions respectively.
+Both DQN agents are capable of running the full game as they are extended (with different degree of changes) with network structure from DeepMind's paper. Yet, the current reward function defined in `agents/*_agent/utils.py` is only for minigame `BuildMarines`. If you want the agent to perform better in the full game or other minig-games, please feel free to define new reward functions respectively.
