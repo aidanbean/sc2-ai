@@ -32,6 +32,8 @@ from pysc2.lib import actions
 from pysc2.lib import features
 
 from .utils import preprocess_screen, screen_channel, buildmarines_reward
+rewards_file = open("rewards.txt", "w")
+loss_file = open("loss.txt", "w")
 
 
 class DuelingAgent(object):
@@ -104,8 +106,7 @@ class DuelingAgent(object):
         else:
             self.sess = sess
 
-        # self.summary_writer = tf.summary.FileWriter("logs/", self.sess.graph)
-
+        self.summary_writer = tf.summary.FileWriter("../logs/", self.sess.graph)
         print("session initialized")
         pass
 
@@ -210,11 +211,14 @@ class DuelingAgent(object):
 
         return spatial_action, non_spatial_action, q
 
+    
+
     def build_model(self):
         """
         define evaluation net, target net
         define optimizer for evaluation net
         """
+
 
         print("building model...")
         # ---------------------------evaluation net for spatial, non-spatial---------------------------
@@ -245,8 +249,8 @@ class DuelingAgent(object):
         non_spatial_action_prob = non_spatial_action_prob / valid_non_spatial_action_prob
         non_spatial_action_log_prob = tf.log(tf.clip_by_value(non_spatial_action_prob, 1e-10, 1.))
 
-        # self.summary.append(tf.summary.histogram('spatial_action_prob', spatial_action_prob))
-        # self.summary.append(tf.summary.histogram('non_spatial_action_prob', non_spatial_action_prob))
+        self.summary.append(tf.summary.histogram('spatial_action_prob', spatial_action_prob))
+        self.summary.append(tf.summary.histogram('non_spatial_action_prob', non_spatial_action_prob))
 
         # compute loss with gradient clipping
         action_log_prob = self.valid_spatial_action * spatial_action_log_prob + non_spatial_action_log_prob
@@ -256,17 +260,28 @@ class DuelingAgent(object):
 
         loss = policy_loss + value_loss
 
+        self.summary.append(tf.summary.histogram("policy_loss",policy_loss))
+        self.summary.append(tf.summary.histogram("value_loss",value_loss))
+        self.summary.append(tf.summary.histogram("policy_loss",loss))
+
+        self.summary.append(tf.summary.scalar("policy_loss",policy_loss))
+        self.summary.append(tf.summary.scalar("value_loss",value_loss))
+        self.summary.append(tf.summary.scalar("policy_loss",loss))
+
+        loss_file.write(str(loss))
+
+
         # Build the optimizer
         opt = tf.train.RMSPropOptimizer(learning_rate=self.lr, decay=0.99, epsilon=1e-10)
         grads = opt.compute_gradients(loss)
         cliped_grad = []
         for grad, var in grads:
-            # self.summary.append(tf.summary.histogram(var.op.name, var))
-            # self.summary.append(tf.summary.histogram(var.op.name + '/grad', grad))
+            self.summary.append(tf.summary.histogram(var.op.name, var))
+            self.summary.append(tf.summary.histogram(var.op.name + '/grad', grad))
             grad = tf.clip_by_norm(grad, 10.0)
             cliped_grad.append([grad, var])
         self.train_op = opt.apply_gradients(cliped_grad)
-        # self.summary_op = tf.summary.merge(self.summary)
+        self.summary_op = tf.summary.merge(self.summary)
 
         # # dueling net optimizer method
         # self.q_target = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='q_target')
@@ -338,11 +353,11 @@ class DuelingAgent(object):
         # self.steps += 1
         # self.reward += obs.reward
 
-        if act_id == 452:
-            #   TODO: debug this
-            _NO_OP = actions.FUNCTIONS.no_op.id
-            #   smart screen action return error when minimap value is below 28
-            return actions.FunctionCall(_NO_OP, [])
+        # if act_id == 452:
+        #     #   TODO: debug this
+        #     _NO_OP = actions.FUNCTIONS.no_op.id
+        #     #   smart screen action return error when minimap value is below 28
+        #     return actions.FunctionCall(_NO_OP, [])
 
         # print("return action with id: {} and args {} ".format(act_id, act_args))
         return actions.FunctionCall(act_id, act_args)
@@ -399,6 +414,7 @@ class DuelingAgent(object):
         infos_next = []
         rewards = []
 
+
         # actions
         valid_spatial_action = np.zeros([self.batch_size], dtype=np.float32)
         spatial_action_selected = np.zeros([self.batch_size, self.ssize ** 2], dtype=np.float32)
@@ -426,6 +442,7 @@ class DuelingAgent(object):
 
             # get reward r
             rewards.append(r)
+            rewards_file.write(str(r))
 
             # get action 'a'
             act_id = a.function
@@ -464,8 +481,8 @@ class DuelingAgent(object):
                 self.non_spatial_action_selected: non_spatial_action_selected
                 }
 
-        # _, summary = self.sess.run([self.train_op, self.summary_op], feed_dict=feed)
-        # self.summary_writer.add_summary(summary, self.learn_step_counter)
+        _, summary = self.sess.run([self.train_op, self.summary_op], feed_dict=feed)
+        self.summary_writer.add_summary(summary, self.learn_step_counter)
         _ = self.sess.run(self.train_op, feed_dict=feed)
 
         self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
@@ -492,6 +509,9 @@ if __name__ == '__main__':
     for v in tf.get_default_graph().as_graph_def().node:
         print(v.name)
     pass
+
+    rewards_file.close()
+    loss_files.close()
 
 
 
