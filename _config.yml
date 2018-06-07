@@ -20,9 +20,9 @@ title                    : "StarCraft II AI"
 title_separator          : "-"
 name                     : "Your Name"
 description              : "An amazing website."
-url                      : https://aidanbean.github.io
+url                      :
 baseurl                  :
-repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
+repository               : aidanbean/ECS170-AI
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
