@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://localhost:4000/getting-started/</loc>
+<lastmod>2018-03-20T12:58:49-07:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/project-report/</loc>
+<lastmod>2018-03-20T12:58:49-07:00</lastmod>
+</url>
+<url>
 <loc>http://localhost:4000/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/assets/ECS_170_Team_Report.pdf</loc>
+<lastmod>2018-06-06T23:41:59-07:00</lastmod>
 </url>
 </urlset>
