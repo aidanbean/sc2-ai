@@ -31,7 +31,7 @@
 
 
 
-  <meta property="article:published_time" content="2016-03-23T08:48:41-07:00">
+  <meta property="article:published_time" content="2018-06-07T07:46:41-07:00">
 
 
 
@@ -107,7 +107,7 @@
 
   </head>
 
-  <body class="layout--splash">
+  <body class="layout--single">
 
     <!--[if lt IE 9]>
 <div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
@@ -162,7 +162,7 @@
 
 
 <div class="page__hero--overlay"
-  style="background-color: #000; background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/assets/images/wall006-1920x1080-2.jpg');"
+  style="background-color: #000; background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/assets/images/wall006-1920x1080-2.jpg');"
 >
   
     <div class="wrapper">
@@ -188,20 +188,54 @@
 
 
 
+
+
 <div id="main" role="main">
-  <article class="splash" itemscope itemtype="http://schema.org/CreativeWork">
+  
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="StarCraft II AI">
     <meta itemprop="description" content="Exploring Sparse Rewards with Deep Reinforcement Learning">
-    <meta itemprop="datePublished" content="March 23, 2016">
+    <meta itemprop="datePublished" content="June 07, 2018">
     
 
-    <section class="page__content" itemprop="text">
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <div class="page__inner-wrap">
+      
 
-    </section>
+      <section class="page__content" itemprop="text">
+        
+        <h2 id="introduction">Introduction</h2>
+
+<p>StarCraft II has several significant obstacles for developing a game-playing agent that makes it a difficult challenge in artificial intelligence.   Firstly,  the action space is large which results in a combinatorial explosion of possible game states. Secondly, the state space is high-dimensional given there are hundreds of elements in each game frame. Thirdly, game actions might result in long-term consequences that cannot be well captured even by state-of-art learning methods.  Finally, the goal of the game, which might appear obvious to human players, is obscure for many learning methods to achieve.</p>
+
+<p>We decided to implement simple agents first then gradually increase the complexity level. In the beginning, we implemented scripted agents and a Q  table  agent  that  are  only  capable  of  playing the minigame <a href="https://github.com/deepmind/pysc2/blob/master/docs/mini_games.md">BuildMarines</a>. At the later stage, we implement the DuelingDQN agent that is capable of playing the full game with no restriction on state space or action space.</p>
+
+<p>We choose Dueling DQN is because Dueling DQN performs  generally  better  than  baseline  DQN  in  Atari  games. It required less computation power compare to parallel A3C. Further, in RTS games, we often need to consider the advantage  of chosen actions, namely how much better an action is compared to another.  Dueling DQN encoded this mechanism. And the BuildMarines minigame,  which didn’t offer much state changes but valued much on choosing the correct action is the perfect playground to test Dueling DQN.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-06-07T07:46:41-07:00">June 07, 2018</time></p>
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
   </article>
-</div>
 
+  
+  
+</div>
     </div>
 
     
