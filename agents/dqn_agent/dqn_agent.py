@@ -31,7 +31,7 @@ from pysc2.agents import base_agent
 from pysc2.lib import actions
 from pysc2.lib import features
 
-from .utils import preprocess_screen, screen_channel, buildmarines_reward
+from utils import preprocess_screen, screen_channel, buildmarines_reward
 
 
 class DQNAgent(object):
@@ -505,6 +505,8 @@ if __name__ == '__main__':
         replace_target_iter=200,
         memory_size=2000,
         batch_size=32,
+        drop_out=0.1,
+        apply_drop_out=False,
         e_greedy_increment=None,
         sess=None
     )
