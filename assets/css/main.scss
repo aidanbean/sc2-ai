@@ -1,28 +1,8 @@
 ---
-sitemap: false
+# Only the main Sass file needs front matter (the dashes are enough)
 ---
 
-/*
- *
- *  HPSTR
- *
- *  Designer: Michael Rose
- *  Twitter: http://twitter.com/mmistakes
- *
-*/
+@charset "utf-8";
 
-// Partials
-@import "variables";
-@import "mixins";
-@import "reset";
-@import "vendor/font-awesome/font-awesome";
-@import "vendor/magnific-popup/magnific-popup";
-@import "site";
-@import "typography";
-@import "syntax";
-// @import "coderay";
-@import "grid";
-@import "elements";
-@import "animations";
-@import "dl-menu";
-@import "page";
+@import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
+@import "minimal-mistakes"; // main partials
