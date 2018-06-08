@@ -21,7 +21,7 @@ title_separator          : "-"
 name                     : "Zergling-Rush"
 description              : "ECS 170 Artificial Intelligence Class"
 url                      :
-baseurl                  : 
+baseurl                  :
 repository               : aidanbean/ECS170-AI
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
@@ -58,9 +58,9 @@ reCaptcha:
   secret                 :
 atom_feed:
   path                   : # blank (default) uses feed.xml
-search                   : true # true, false (default)
-search_full_content      : true # true, false (default)
-search_provider          : google # lunr (default), algolia, google
+search                   : # true, false (default)
+search_full_content      : # true, false (default)
+search_provider          : # lunr (default), algolia, google
 algolia:
   application_id         : # YOUR_APPLICATION_ID
   index_name             : # YOUR_INDEX_NAME
