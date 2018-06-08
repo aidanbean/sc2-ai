@@ -19,4 +19,4 @@ Both DQN agents learned to build multiple depots and barracks quickly in episode
 <img src="{{ site.baseurl }}/assets/images/sc2.png">
 
 
-
+<img src="{{ site.baseurl }}/assets/images/sc3.png">
