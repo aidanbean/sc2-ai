@@ -29,9 +29,9 @@ from run_loop import run_loop
 
 FLAGS = flags.FLAGS
 flags.DEFINE_bool("render", True, "Whether to render with pygame.")
-flags.DEFINE_integer("feature_screen_size", 84,
+flags.DEFINE_integer("feature_screen_size", 64,
                      "Resolution for screen feature layers.")
-flags.DEFINE_integer("feature_minimap_size", 84,
+flags.DEFINE_integer("feature_minimap_size", 64,
                      "Resolution for minimap feature layers.")
 flags.DEFINE_integer("rgb_screen_size", None,
                      "Resolution for rendered screen.")
@@ -45,7 +45,7 @@ flags.DEFINE_bool("use_feature_units", False,
 
 flags.DEFINE_integer("max_agent_steps", 0, "Total agent steps.")
 flags.DEFINE_integer("game_steps_per_episode", None, "Game steps per episode.")
-flags.DEFINE_integer("max_episodes", 10000, "Total episodes.")
+flags.DEFINE_integer("max_episodes", 2, "Total episodes.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 
 flags.DEFINE_string("agent", "dueling_agent.dueling_agent.DuelingAgent",
@@ -63,7 +63,7 @@ flags.DEFINE_bool("profile", False, "Whether to turn on code profiling.")
 flags.DEFINE_bool("trace", False, "Whether to trace the code execution.")
 flags.DEFINE_integer("parallel", 1, "How many instances to run in parallel.")
 
-flags.DEFINE_bool("save_replay", False, "Whether to save a replay at the end.")
+flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 
 flags.DEFINE_string("map", "BuildMarines", "Name of a map to use.")
 flags.mark_flag_as_required("map")
@@ -86,7 +86,7 @@ def run_thread(agent_classes, players, map_name, visualize):
       visualize=visualize) as env:
     env = available_actions_printer.AvailableActionsPrinter(env)
     agents = [agent_cls() for agent_cls in agent_classes]
-    run_loop(agents, env, FLAGS.max_agent_steps, FLAGS.max_episodes, FLAGS.feature_screen_size)
+    run_loop(agents, env, FLAGS.max_agent_steps, FLAGS.max_episodes, FLAGS.feature_screen_size, FLAGS.save_replay)
     if FLAGS.save_replay:
       env.save_replay(agent_classes[0].__name__)
 

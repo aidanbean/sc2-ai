@@ -10,7 +10,7 @@ import time
 
 
 
-def run_loop(agents, env, max_frames, max_episodes, screen_size):
+def run_loop(agents, env, max_frames, max_episodes, screen_size, save_replay):
     """A run loop to have agents and an environment interact."""
 
     # record frame, episode and time
@@ -28,8 +28,9 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
             screen_size=screen_size,
             learning_rate=0.001,
             reward_decay=0.9,
-            e_greedy=0.9,
-            replace_target_iter=50,
+            max_epilson=0.9,
+            init_epilson=0.5,
+            replace_target_iter=20,
             memory_size=1000,
             batch_size=32,
             drop_out=0.1,
@@ -61,9 +62,17 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
 
                 # return the run loop function if max frame reached, default is None
                 if max_frames and total_frames >= max_frames:
+                    # save score
+                    for a in agents:
+                        a.save_endgame_score()
+
+                    if save_replay:
+                        env.save_replay(agents[0].__name__)
                     return
                 # terminate if terminated state reach
                 if timesteps[0].last():
+                    for a in agents:
+                        a.get_endgame_score(obs=timesteps[0])
                     break
 
                 # progress the environment using actions returned from agent
@@ -73,7 +82,7 @@ def run_loop(agents, env, max_frames, max_episodes, screen_size):
                     a.store_transition(obs=obs[0], a=actions[0], obs_=timesteps[0])
 
                 # agent learn from replay after every # of steps / frame
-                if (total_frames > 300) and (total_frames % 100 == 0):
+                if (total_frames > 600) and (total_frames % 200 == 0):
                     for a in agents:
                         a.learn()
 

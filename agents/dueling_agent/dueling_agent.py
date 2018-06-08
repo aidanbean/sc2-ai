@@ -35,8 +35,8 @@ from pysc2.lib import actions
 from pysc2.lib import features
 
 from .utils import preprocess_screen, screen_channel, buildmarines_reward
-rewards_file = open("rewards.txt", "w+")
-loss_file = open("loss.txt", "w+")
+# rewards_file = open("rewards.txt", "w+")
+# loss_file = open("loss.txt", "w+")
 
 
 class DuelingAgent(object):
@@ -57,13 +57,14 @@ class DuelingAgent(object):
             screen_size,
             learning_rate=0.001,
             reward_decay=0.9,
-            e_greedy=0.9,
+            max_epilson=0.9,
+            init_epilson=0.5,
             replace_target_iter=200,
             memory_size=500,
             batch_size=32,
             drop_out=0.2,
             apply_drop_out=False,
-            e_greedy_increment=None,
+            e_greedy_increment=0.002,
             sess=None
     ):
         """
@@ -90,12 +91,13 @@ class DuelingAgent(object):
         self.ssize = screen_size # input cnn size
         self.lr = learning_rate
         self.gamma = reward_decay
-        self.epsilon_max = e_greedy
+        self.max_epsilon = max_epilson
+        self.init_epsilon = init_epilson
         self.replace_target_iter = replace_target_iter
         self.memory_size = memory_size
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        # self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
         self.drop_out = drop_out
         self.apply_drop_out = apply_drop_out
 
@@ -103,6 +105,7 @@ class DuelingAgent(object):
         # self.memory = np.zeros((self.memory_size, self.ssize*2+2))
         self.memory = deque()
         self.summary = []
+        self.score = [] # score for each episode
 
         # build model
         self.build_model()
@@ -125,7 +128,7 @@ class DuelingAgent(object):
         else:
             self.sess = sess
 
-        self.summary_writer = tf.summary.FileWriter("./logs/", self.sess.graph)
+        # self.summary_writer = tf.summary.FileWriter("./dueling_agent_logs/", self.sess.graph)
         print("session initialized")
         pass
 
@@ -239,8 +242,6 @@ class DuelingAgent(object):
 
         return spatial_action, non_spatial_action, q
 
-    
-
     def build_model(self):
         """
         define evaluation net, target net
@@ -276,8 +277,8 @@ class DuelingAgent(object):
         non_spatial_action_prob = non_spatial_action_prob / valid_non_spatial_action_prob
         non_spatial_action_log_prob = tf.log(tf.clip_by_value(non_spatial_action_prob, 1e-10, 1.))
 
-        self.summary.append(tf.summary.histogram('spatial_action_prob', spatial_action_prob))
-        self.summary.append(tf.summary.histogram('non_spatial_action_prob', non_spatial_action_prob))
+        # self.summary.append(tf.summary.histogram('spatial_action_prob', spatial_action_prob))
+        # self.summary.append(tf.summary.histogram('non_spatial_action_prob', non_spatial_action_prob))
 
         # compute loss with gradient clipping
         action_log_prob = self.valid_spatial_action * spatial_action_log_prob + non_spatial_action_log_prob
@@ -287,15 +288,10 @@ class DuelingAgent(object):
 
         loss = policy_loss + value_loss
 
-        self.summary.append(tf.summary.histogram("policy_loss",policy_loss))
-        self.summary.append(tf.summary.histogram("value_loss",value_loss))
-        self.summary.append(tf.summary.histogram("policy_loss",loss))
+        # tf.summary.scalar("policy_loss",  - policy_loss)
+        # tf.summary.scalar("value_loss",  - value_loss)
 
-        self.summary.append(tf.summary.scalar("policy_loss",policy_loss))
-        self.summary.append(tf.summary.scalar("value_loss",value_loss))
-        self.summary.append(tf.summary.scalar("policy_loss",loss))
-
-        loss_file.write(str(loss))
+        # loss_file.write(str(loss))
 
 
         # Build the optimizer
@@ -303,12 +299,10 @@ class DuelingAgent(object):
         grads = opt.compute_gradients(loss)
         cliped_grad = []
         for grad, var in grads:
-            self.summary.append(tf.summary.histogram(var.op.name, var))
-            self.summary.append(tf.summary.histogram(var.op.name + '/grad', grad))
             grad = tf.clip_by_norm(grad, 10.0)
             cliped_grad.append([grad, var])
         self.train_op = opt.apply_gradients(cliped_grad)
-        self.summary_op = tf.summary.merge(self.summary)
+        # self.summary_op = tf.summary.merge(self.summary)
 
         # # dueling net optimizer method
         # self.q_target = tf.placeholder(tf.float32, [None, len(actions.FUNCTIONS)], name='q_target')
@@ -359,7 +353,7 @@ class DuelingAgent(object):
         target = [int(target // self.ssize), int(target % self.ssize)]
 
         # e-greedy action selection (IN THIS NETWORK, WE EXPLORE ONLY IF A RANDOM FRACTION IS ABOVE EPSILON)
-        if np.random.random() > self.epsilon:
+        if np.random.random() < self.init_epsilon:
             # randomly select non-spatial action
             act_id = np.random.choice(valid_actions)
 
@@ -376,9 +370,6 @@ class DuelingAgent(object):
                 act_args.append([target[1], target[0]]) # y x to x y
             else:
                 act_args.append([0])  # [0] means not queue
-
-        # self.steps += 1
-        # self.reward += obs.reward
 
         # print("return action with id: {} and args {} ".format(act_id, act_args))
         return actions.FunctionCall(act_id, act_args)
@@ -463,7 +454,7 @@ class DuelingAgent(object):
 
             # get reward r
             rewards.append(r)
-            rewards_file.write(str(r))
+            # rewards_file.write(str(r))
 
             # get action 'a'
             act_id = a.function
@@ -502,37 +493,43 @@ class DuelingAgent(object):
                 self.non_spatial_action_selected: non_spatial_action_selected
                 }
 
-        _, summary = self.sess.run([self.train_op, self.summary_op], feed_dict=feed)
-        self.summary_writer.add_summary(summary, self.learn_step_counter)
+        # _, summary = self.sess.run([self.train_op, self.summary_op], feed_dict=feed)
+        # self.summary_writer.add_summary(summary, self.learn_step_counter)
         _ = self.sess.run(self.train_op, feed_dict=feed)
 
-        self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
+        self.init_epsilon = self.init_epsilon + self.epsilon_increment if self.init_epsilon < self.max_epsilon else self.max_epsilon
         self.learn_step_counter += 1
         pass
 
+    def get_endgame_score(self, obs):
+        self.score.append(obs.reward)
 
-if __name__ == '__main__':
-    agent = DuelingAgent()
-    agent.setup(
-        obs_spec=1,
-        action_spec=1,
-        screen_size=64,
-        learning_rate=0.001,
-        reward_decay=0.9,
-        e_greedy=0.9,
-        replace_target_iter=200,
-        memory_size=2000,
-        batch_size=32,
-        e_greedy_increment=None,
-        sess=None
-    )
+    def save_endgame_score(self):
+        np.save('./dueling_agent/scores.npy', self.score)
 
-    for v in tf.get_default_graph().as_graph_def().node:
-        print(v.name)
-    pass
 
-    rewards_file.close()
-    loss_files.close()
+# if __name__ == '__main__':
+#     agent = DuelingAgent()
+#     agent.setup(
+#         obs_spec=1,
+#         action_spec=1,
+#         screen_size=64,
+#         learning_rate=0.001,
+#         reward_decay=0.9,
+#         e_greedy=0.9,
+#         replace_target_iter=200,
+#         memory_size=2000,
+#         batch_size=32,
+#         e_greedy_increment=None,
+#         sess=None
+#     )
+#
+#     for v in tf.get_default_graph().as_graph_def().node:
+#         print(v.name)
+#     pass
+#
+#     rewards_file.close()
+#     loss_files.close()
 
 
 
