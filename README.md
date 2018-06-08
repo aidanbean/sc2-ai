@@ -1,6 +1,6 @@
 # ECS170-AI
 
-## Description:
+## Folder Description:
 
 `agents`: contain runnable sc2 agents
 
