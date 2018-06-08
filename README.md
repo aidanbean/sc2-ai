@@ -1,5 +1,27 @@
 # ECS170-AI
 
+## Description:
+
+`agents`: contain runnable sc2 agents
+
+`dqn`: DQN practice under OPENAI
+
+`explore`: exploration files on `pysc2` package
+
+`images`: network structure graph and gameplay screenshots
+
+`others`: utilies
+
+`q-learning`: q learning relative exploration files
+
+`replay`: replay in bin format
+
+`resources`: some researches and ideas
+
+`save_model`: tensorflow event files
+
+`tensorflow practice`: practice files on tensorflow, dqn and dueling dqn
+
 ## Running the agent:
 Under folder `agents/`
 
@@ -28,4 +50,4 @@ The agents are bug-free under following environment configuration.
 
 `tensorflow`: latest version on gpu or cpu
 
-`StarCraft II`: 4.1.2
+`StarCraft II`: 4.1.2 Linux version
