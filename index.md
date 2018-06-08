@@ -6,9 +6,10 @@ date: 2018-06-07T10:46:41-04:00
 header:
   overlay_color: "#000"
   overlay_filter: "0.3"
-  overlay_image: /assets/images/wall006-1920x1080-2.jpg
+  overlay_image: /assets/images/wall006-1920x1200.jpg
   caption: "Photo credit: [**Blizzard**](http://us.battle.net/sc2/en/media/wallpapers/?view=wall006)"
 excerpt: "Exploring Sparse Rewards with Deep Reinforcement Learning<br /><br /><br />"
+classes: wide
 ---
 ## Introduction
 

@@ -50,7 +50,7 @@
     {
       "@context": "http://schema.org",
       "@type": "Person",
-      "name": "Your Name",
+      "name": "Zergling-Rush",
       "url": "http://localhost:4000",
       "sameAs": null
     }
@@ -103,7 +103,7 @@
 
   </head>
 
-  <body class="layout--posts">
+  <body class="layout--single">
 
     <!--[if lt IE 9]>
 <div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
@@ -133,6 +133,12 @@
           
         </ul>
         
+        <button class="search__toggle" type="button">
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
         <button class="greedy-nav__toggle hidden" type="button">
           <span class="visually-hidden">Toggle Menu</span>
           <div class="navicon"></div>
@@ -150,29 +156,183 @@
 
 <div id="main" role="main">
   
+  <div class="sidebar sticky">
+  
 
-  <div class="archive">
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        
+        <a href="https://www.ucdavis.edu">
+          <img src="/assets/images/UC-Davis-seal.png" alt="" itemprop="image">
+        </a>
+      
+    </div>
+  
+
+  <div class="author__content">
     
-      <h1 id="page-title" class="page__title">Getting Started</h1>
+      <a href="https://www.ucdavis.edu"><h3 class="author__name" itemprop="name"></h3></a>
     
-    <h2 id="running-the-agent">Running the agent:</h2>
+    
+      <p class="author__bio" itemprop="description">
+        Developed at UC Davis
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="http://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Davis, CA</span>
+        </li>
+      
+
+      
+        <li>
+          <a href="https://github.com/dr-jam/ECS170" itemprop="url">
+            <i class="fas fa-fw fa-link" aria-hidden="true"></i> Class Website
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/aidanbean/ECS170-AI" itemprop="sameAs">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Getting Started">
+    <meta itemprop="description" content="How to quickly install and setup Minimal Mistakes for use with GitHub Pages.">
+    
+    <meta itemprop="dateModified" content="June 07, 2018">
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Getting Started
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-cog"></i> Table of Contents</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#running-the-agent">Running the agent</a></li>
+  <li><a href="#setting-game-configuration">Setting game configuration</a></li>
+  <li><a href="#setting-agent-configuration">Setting agent configuration</a></li>
+  <li><a href="#description">Description</a></li>
+  <li><a href="#version">Version</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <p>This page is about getting started running the agent.  Please navigate to our <a href="https://github.com/aidanbean/ECS170-AI" target="_blank">GitHub</a> repository and follow these steps.</p>
+<h2 id="running-the-agent">Running the agent</h2>
 <p>Under folder <code class="highlighter-rouge">agents/</code></p>
 
-<p>Dueling DQN agent: <code class="highlighter-rouge">﻿python -m main --agent=dueling_agent.dueling_agent.DuelingAgent</code></p>
+<p>Dueling DQN agent:</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="sb">`</span>﻿python <span class="nt">-m</span> main <span class="nt">--agent</span><span class="o">=</span>dueling_agent.dueling_agent.DuelingAgent<span class="sb">`</span>
+</code></pre></div></div>
 
-<p>DQN agent: <code class="highlighter-rouge">﻿python -m main --agent=dqn_agent.dqn_agent.DQNAgent</code></p>
+<p>DQN agent:</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="sb">`</span>﻿python <span class="nt">-m</span> main <span class="nt">--agent</span><span class="o">=</span>dqn_agent.dqn_agent.DQNAgent<span class="sb">`</span>
+</code></pre></div></div>
 
-<h2 id="setting-game-configuration">Setting game configuration:</h2>
+<h2 id="setting-game-configuration">Setting game configuration</h2>
 <p>Under file <code class="highlighter-rouge">agents/main.py</code></p>
 
-<h2 id="setting-agent-configuration">Setting agent configuration:</h2>
+<h2 id="setting-agent-configuration">Setting agent configuration</h2>
 <p>Under file <code class="highlighter-rouge">agents/run_loop.py</code></p>
 
-<h2 id="description">Description:</h2>
+<h2 id="description">Description</h2>
 
 <p>Both DQN agents are capable of running the full game as they are extended (with different degree of changes) with network structure from DeepMind’s paper. Yet, the current reward function defined in <code class="highlighter-rouge">agents/*_agent/utils.py</code> is only for minigame <code class="highlighter-rouge">BuildMarines</code>. If you want the agent to perform better in the full game or other minig-games, please feel free to define new reward functions respectively.</p>
 
-<h2 id="version">Version:</h2>
+<h2 id="version">Version</h2>
 <p>The agents are bug-free under following environment configuration.</p>
 
 <p><code class="highlighter-rouge">python</code>: 2.7 or 3.*</p>
@@ -183,19 +343,54 @@
 
 <p><code class="highlighter-rouge">StarCraft II</code>: 4.1.2</p>
 
+        
+      </section>
 
-<ul class="taxonomy__index">
+      <footer class="page__meta">
+        
+        
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-06-07">June 07, 2018</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=Getting+Started%20http%3A%2F%2Flocalhost%3A4000%2Fgetting-started%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fgetting-started%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=http%3A%2F%2Flocalhost%3A4000%2Fgetting-started%2F" class="btn btn--google-plus" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Google Plus"><i class="fab fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fgetting-started%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+    </div>
+
+    
+  </article>
+
   
   
-</ul>
-
-
-
-
-  </div>
 </div>
     </div>
 
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form onsubmit="return executeQuery();" id="cse-search-box-form-id">
+    <input type="text" id="cse-search-input-box-id" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+    </form>
+    <div id="results" class="results">
+        <gcse:searchresults-only></gcse:searchresults-only>    
+    </div></div>
+      </div>
     
 
     <div class="page__footer">
@@ -211,13 +406,15 @@
     
     
     
+      <li><a href="https://github.com/aidanbean/ECS170-AI"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
     
     
     <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2018 Your Name. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+<div class="page__footer-copyright">&copy; 2018 Zergling-Rush. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
 
       </footer>
     </div>
@@ -227,7 +424,30 @@
   <script src="https://use.fontawesome.com/releases/v5.0.13/js/all.js"></script>
 
 
+<script>
+  (function () {
+    var cx = '003500121699970737580:71xdt5nxfo0';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
 
+  function googleCustomSearchExecute() {
+    var input = document.getElementById('cse-search-input-box-id');
+    var element = google.search.cse.element.getElement('searchresults-only0');
+    if (input.value == '') {
+      element.clearAllResults();
+    } else {
+      element.execute(input.value);
+    }
+    return false;
+  }
+
+  
+</script>
 
 
 
