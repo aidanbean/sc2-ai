@@ -11,7 +11,7 @@ toc_icon: "cog"
 ---
 This page is about getting started running the agent.  Please navigate to our <a href="https://github.com/aidanbean/ECS170-AI" target="_blank">GitHub</a> repository and follow these steps.
 
-## Folder Description:
+## Folder Description
 
 `agents`: contain runnable sc2 agents
 
@@ -52,18 +52,12 @@ Under file `agents/main.py`
 ## Setting agent configuration
 Under file `agents/run_loop.py`
 
-## Setting game configuration:
-Under file `agents/main.py`
-
-## Setting agent configuration:
-Under file `agents/run_loop.py`
-
-## Description:
+## Description
 
 Both DQN agents are capable of running the full game as they are extended (with different degree of changes) with network structure from DeepMind's paper. Yet, the current reward function defined in `agents/*_agent/utils.py` is only for minigame `BuildMarines`. If you want the agent to perform better in the full game or other mini-games, please feel free to define new reward functions respectively.
 
 
-## Version:
+## Version
 The agents are runnable under following environment configuration.
 
 `python`: 2.7 or 3.*
