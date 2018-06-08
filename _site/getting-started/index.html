@@ -123,7 +123,12 @@
           
             
             <li class="masthead__menu-item">
-              <a href="https://drive.google.com/file/d/1kFm2OSaGgpLuxAnRBVpZ-ZOJeZ06g-MG/view?usp=sharing" >Project Report</a>
+              <a href="http://localhost:4000/results-page/" >Results</a>
+            </li>
+          
+            
+            <li class="masthead__menu-item">
+              <a href="https://drive.google.com/file/d/1uaz6B_TD5YrPpgYo8JoKY2K4KGQN_D43/view?usp=sharing" >Project Report</a>
             </li>
           
             
@@ -289,7 +294,7 @@
 
 
 
-  less than 1 minute read
+  1 minute read
 </p>
           
         </header>
@@ -301,25 +306,51 @@
             <nav class="toc">
               <header><h4 class="nav__title"><i class="fas fa-cog"></i> Table of Contents</h4></header>
               <ul class="toc__menu">
+  <li><a href="#folder-description">Folder Description:</a></li>
   <li><a href="#running-the-agent">Running the agent</a></li>
   <li><a href="#setting-game-configuration">Setting game configuration</a></li>
   <li><a href="#setting-agent-configuration">Setting agent configuration</a></li>
-  <li><a href="#description">Description</a></li>
-  <li><a href="#version">Version</a></li>
+  <li><a href="#setting-game-configuration-1">Setting game configuration:</a></li>
+  <li><a href="#setting-agent-configuration-1">Setting agent configuration:</a></li>
+  <li><a href="#description">Description:</a></li>
+  <li><a href="#version">Version:</a></li>
 </ul>
             </nav>
           </aside>
         
         <p>This page is about getting started running the agent.  Please navigate to our <a href="https://github.com/aidanbean/ECS170-AI" target="_blank">GitHub</a> repository and follow these steps.</p>
+
+<h2 id="folder-description">Folder Description:</h2>
+
+<p><code class="highlighter-rouge">agents</code>: contain runnable sc2 agents</p>
+
+<p><code class="highlighter-rouge">dqn</code>: DQN practice under OPENAI</p>
+
+<p><code class="highlighter-rouge">explore</code>: exploration files on <code class="highlighter-rouge">pysc2</code> package</p>
+
+<p><code class="highlighter-rouge">images</code>: network structure graph and gameplay screenshots</p>
+
+<p><code class="highlighter-rouge">others</code>: utilies</p>
+
+<p><code class="highlighter-rouge">q-learning</code>: q learning relative exploration files</p>
+
+<p><code class="highlighter-rouge">replay</code>: replay in bin format</p>
+
+<p><code class="highlighter-rouge">resources</code>: some researches and ideas</p>
+
+<p><code class="highlighter-rouge">save_model</code>: tensorflow event files</p>
+
+<p><code class="highlighter-rouge">tensorflow practice</code>: practice files on tensorflow, dqn and dueling dqn</p>
+
 <h2 id="running-the-agent">Running the agent</h2>
 <p>Under folder <code class="highlighter-rouge">agents/</code></p>
 
 <p>Dueling DQN agent:</p>
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="sb">`</span>﻿python <span class="nt">-m</span> main <span class="nt">--agent</span><span class="o">=</span>dueling_agent.dueling_agent.DuelingAgent<span class="sb">`</span>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python <span class="nt">-m</span> main <span class="nt">--agent</span><span class="o">=</span>dueling_agent.dueling_agent.DuelingAgent
 </code></pre></div></div>
 
 <p>DQN agent:</p>
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="sb">`</span>﻿python <span class="nt">-m</span> main <span class="nt">--agent</span><span class="o">=</span>dqn_agent.dqn_agent.DQNAgent<span class="sb">`</span>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>﻿python <span class="nt">-m</span> main <span class="nt">--agent</span><span class="o">=</span>dqn_agent.dqn_agent.DQNAgent
 </code></pre></div></div>
 
 <h2 id="setting-game-configuration">Setting game configuration</h2>
@@ -328,12 +359,18 @@
 <h2 id="setting-agent-configuration">Setting agent configuration</h2>
 <p>Under file <code class="highlighter-rouge">agents/run_loop.py</code></p>
 
-<h2 id="description">Description</h2>
+<h2 id="setting-game-configuration-1">Setting game configuration:</h2>
+<p>Under file <code class="highlighter-rouge">agents/main.py</code></p>
 
-<p>Both DQN agents are capable of running the full game as they are extended (with different degree of changes) with network structure from DeepMind’s paper. Yet, the current reward function defined in <code class="highlighter-rouge">agents/*_agent/utils.py</code> is only for minigame <code class="highlighter-rouge">BuildMarines</code>. If you want the agent to perform better in the full game or other minig-games, please feel free to define new reward functions respectively.</p>
+<h2 id="setting-agent-configuration-1">Setting agent configuration:</h2>
+<p>Under file <code class="highlighter-rouge">agents/run_loop.py</code></p>
 
-<h2 id="version">Version</h2>
-<p>The agents are bug-free under following environment configuration.</p>
+<h2 id="description">Description:</h2>
+
+<p>Both DQN agents are capable of running the full game as they are extended (with different degree of changes) with network structure from DeepMind’s paper. Yet, the current reward function defined in <code class="highlighter-rouge">agents/*_agent/utils.py</code> is only for minigame <code class="highlighter-rouge">BuildMarines</code>. If you want the agent to perform better in the full game or other mini-games, please feel free to define new reward functions respectively.</p>
+
+<h2 id="version">Version:</h2>
+<p>The agents are runnable under following environment configuration.</p>
 
 <p><code class="highlighter-rouge">python</code>: 2.7 or 3.*</p>
 
@@ -341,7 +378,7 @@
 
 <p><code class="highlighter-rouge">tensorflow</code>: latest version on gpu or cpu</p>
 
-<p><code class="highlighter-rouge">StarCraft II</code>: 4.1.2</p>
+<p><code class="highlighter-rouge">StarCraft II</code>: 4.1.2 Linux version</p>
 
         
       </section>

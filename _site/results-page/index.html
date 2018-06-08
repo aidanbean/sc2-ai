@@ -9,17 +9,19 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>StarCraft II AI</title>
-<meta name="description" content="ECS 170 Artificial Intelligence Class">
+<!-- begin _includes/seo.html --><title>Results - StarCraft II AI</title>
+<meta name="description" content="How to quickly install and setup Minimal Mistakes for use with GitHub Pages.">
 
 
 
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="StarCraft II AI">
-<meta property="og:title" content="StarCraft II AI">
-<meta property="og:url" content="http://localhost:4000/_pages/splash-page/">
+<meta property="og:title" content="Results">
+<meta property="og:url" content="http://localhost:4000/results-page/">
 
+
+  <meta property="og:description" content="How to quickly install and setup Minimal Mistakes for use with GitHub Pages.">
 
 
 
@@ -36,7 +38,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/_pages/splash-page/">
+<link rel="canonical" href="http://localhost:4000/results-page/">
 
 
 
@@ -121,7 +123,12 @@
           
             
             <li class="masthead__menu-item">
-              <a href="https://drive.google.com/file/d/1kFm2OSaGgpLuxAnRBVpZ-ZOJeZ06g-MG/view?usp=sharing" >Project Report</a>
+              <a href="http://localhost:4000/results-page/" >Results</a>
+            </li>
+          
+            
+            <li class="masthead__menu-item">
+              <a href="https://drive.google.com/file/d/1uaz6B_TD5YrPpgYo8JoKY2K4KGQN_D43/view?usp=sharing" >Project Report</a>
             </li>
           
             
@@ -271,15 +278,16 @@
 
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Results">
+    <meta itemprop="description" content="How to quickly install and setup Minimal Mistakes for use with GitHub Pages.">
     
-    
-    
-    
+    <meta itemprop="dateModified" content="June 07, 2018">
 
     <div class="page__inner-wrap">
       
         <header>
-          
+          <h1 id="page-title" class="page__title" itemprop="headline">Results
+</h1>
           
             <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
 
@@ -294,20 +302,24 @@
 
       <section class="page__content" itemprop="text">
         
-        <!-- ---
-title: "StarCraft II AI"
-layout: splash
-permalink: /
-date: 2016-03-23T11:48:41-04:00
-header:
-  overlay_color: "#000"
-  overlay_filter: "0.4"
-  overlay_image: /assets/images/wall006-1920x1080-2.jpg
-  caption: "Photo credit: [**Blizzard**](http://us.battle.net/sc2/en/media/wallpapers/?view=wall006)"
-excerpt: "Exploring Sparse Rewards with Deep Reinforcement Learning<br /><br /><br />"
----
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-cog"></i> Table of Contents</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#analysis">Analysis</a></li>
+  <li><a href="#screenshots">Screenshots</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <h2 id="analysis">Analysis</h2>
+<p>Both DQN agents learned to build multiple depots and barracks quickly in episode 1. But they learned to build Marines relatively slower. Perhaps it’s because we select non-spatial action and spatial action simultaneously, and we can build depot or barrack in any coordinates of the map. However, build marine action requires the agent to first select the barrack then select the build marine action, which is a complex action requiring the agent much more training to learn. Since building a barracks and depots also contains positive reward, the agent tends to build these infrastructure instead of trying to click on them.</p>
+<h2 id="screenshots">Screenshots</h2>
+<p><img src="/assets/images/sc1.png" alt="Training1" /></p>
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. -->
+<p><img src="/assets/images/sc2.png" alt="Training2" /></p>
+
+<p><img src="/assets/images/sc3.png" alt="Training3" /></p>
 
         
       </section>
@@ -318,6 +330,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 
         
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-06-07">June 07, 2018</time></p>
+        
       </footer>
 
       <section class="page__share">
@@ -325,13 +339,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?text=%20http%3A%2F%2Flocalhost%3A4000%2F_pages%2Fsplash-page%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?text=Results%20http%3A%2F%2Flocalhost%3A4000%2Fresults-page%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2F_pages%2Fsplash-page%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fresults-page%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://plus.google.com/share?url=http%3A%2F%2Flocalhost%3A4000%2F_pages%2Fsplash-page%2F" class="btn btn--google-plus" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Google Plus"><i class="fab fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+  <a href="https://plus.google.com/share?url=http%3A%2F%2Flocalhost%3A4000%2Fresults-page%2F" class="btn btn--google-plus" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Google Plus"><i class="fab fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2F_pages%2Fsplash-page%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fresults-page%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
